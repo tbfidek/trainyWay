@@ -1,0 +1,12 @@
+#signup-view {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    padding: 10%;
+}
+
+:host {
+    display: block;
+    padding: var(--lumo-space-m) var(--lumo-space-l);
+}

@@ -1,0 +1,14 @@
+#login-view {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    padding: 20%;
+    width: 150px;
+    height: 150px;
+}
+
+:host {
+    display: block;
+    padding: var(--lumo-space-m) var(--lumo-space-l);
+}
