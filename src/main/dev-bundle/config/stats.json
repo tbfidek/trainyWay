@@ -281,10 +281,10 @@
   "virtualListConnector.js": "e89f6bc6f5cd4765c863ae12721371ebff9079d163679e3989368fb7f74e5e61"
  },
  "themeJsonContents": {
-  "mytodo": "{\n  \"lumoImports\" : [ \"typography\", \"color\", \"spacing\", \"badge\", \"utility\" ]\n}"
+  "trainSched": "{\n  \"lumoImports\" : [ \"typography\", \"color\", \"spacing\", \"badge\", \"utility\" ]\n}"
  },
  "entryScripts": [
-  "VAADIN/build/indexhtml-62bef9da.js"
+  "VAADIN/build/indexhtml-e855a48a.js"
  ],
  "webComponents": [],
  "packageJsonHash": "e7f31c1be23da66c9632b284173867bf6f66fbbcedd9c79737ea06f38923e25c"
