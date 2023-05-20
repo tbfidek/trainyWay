@@ -1,4 +1,4 @@
-package com.example.application.views.logout;
+package com.example.application.views.authentication;
 
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.UI;
@@ -8,7 +8,6 @@ import com.vaadin.flow.server.VaadinSession;
 
 @Route("logout")
 public class LogoutView extends Composite<VerticalLayout> {
-
     public LogoutView() {
         UI.getCurrent().getPage().setLocation(" ");
         VaadinSession.getCurrent().getSession().invalidate();

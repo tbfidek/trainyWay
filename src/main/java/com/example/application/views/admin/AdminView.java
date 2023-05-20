@@ -3,6 +3,7 @@ package com.example.application.views.admin;
 import com.example.application.data.entity.Train;
 import com.example.application.data.service.TrainService;
 import com.example.application.data.service.UserRepository;
+import com.example.application.views.main.MainLayout;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -32,6 +33,7 @@ import java.util.Optional;
 
 @PageTitle("Admin")
 @Uses(Icon.class)
+@Route(layout = MainLayout.class)
 public class AdminView extends Div implements BeforeEnterObserver {
 
     private final String SAMPLEPERSON_ID = "trainID";

@@ -1,4 +1,4 @@
-package com.example.application.views.login;
+package com.example.application.views.authentication;
 
 import com.example.application.data.entity.User;
 import com.example.application.data.service.AuthService;

@@ -1,8 +1,7 @@
-package com.example.application.views.login;
+package com.example.application.views.authentication;
 
 import com.example.application.data.entity.User;
 import com.example.application.data.service.AuthService;
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;

@@ -6,6 +6,12 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "trains")
 public class Train extends AbstractEntity{
+    private String trainName;
+    private String depStation;
+    private String depTime;
+    private String arrStation;
+    private String arrTime;
+    private String delay;
 
     public String getTrainName() {
         return trainName;
@@ -15,17 +21,43 @@ public class Train extends AbstractEntity{
         this.trainName = trainName;
     }
 
-    public String getBlabla() {
-        return blabla;
+    public String getDepStation() {
+        return depStation;
     }
 
-    public void setBlabla(String blabla) {
-        this.blabla = blabla;
+    public void setDepStation(String depStation) {
+        this.depStation = depStation;
     }
 
-    private String trainName;
-    private String blabla;
+    public String getDepTime() {
+        return depTime;
+    }
 
+    public void setDepTime(String depTime) {
+        this.depTime = depTime;
+    }
 
+    public String getArrStation() {
+        return arrStation;
+    }
 
+    public void setArrStation(String arrStation) {
+        this.arrStation = arrStation;
+    }
+
+    public String getArrTime() {
+        return arrTime;
+    }
+
+    public void setArrTime(String arrTime) {
+        this.arrTime = arrTime;
+    }
+
+    public String getDelay() {
+        return delay;
+    }
+
+    public void setDelay(String delay) {
+        this.delay = delay;
+    }
 }
