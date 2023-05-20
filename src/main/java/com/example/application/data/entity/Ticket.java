@@ -1,6 +1,11 @@
 package com.example.application.data.entity;
 
-public class Ticket {
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "tickets")
+public class Ticket extends AbstractEntity {
 
     private String userID;
 

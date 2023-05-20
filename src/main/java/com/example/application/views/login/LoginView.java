@@ -38,6 +38,11 @@ public class LoginView extends Div {
                         } catch (AuthService.AuthException e) {
                             Notification.show("Wrong credentials");
                         }
+                    }),
+                    new Button("Signup", buttonClickEvent -> {
+                            //authService.authenticate(username.getValue(), password.getValue());
+                            UI.getCurrent().navigate("signup");
+
                     })
             );
 

@@ -17,13 +17,24 @@ import java.util.List;
 @Service
 public class AuthService {
 
-    public record AuthorizedRoute(String route, String name, Class<? extends Component> view){
+    public record AuthorizedRoute(String route, String name, Class<? extends Component> view) {
 
     }
+
     //SEPARA EXCEPTII IN PACKAGE SEPARAT;
-    public class AuthException extends Exception{ }
-    public class UserAlreadyExistsException extends Exception{ }
-    public class PasswordNotEqualException extends Exception{ }
+    public class AuthException extends Exception {
+    }
+
+    public class UserAlreadyExistsException extends Exception {
+    }
+
+    public class PasswordNotEqualException extends Exception {
+    }
+
+    public class BlankFieldsException extends Exception {
+
+    }
+
     private final UserRepository userRepository;
 
     public AuthService(UserRepository userRepository) {
@@ -33,43 +44,50 @@ public class AuthService {
 
     }
 
-    public void register(String username, String email, String password, String confirmPassword) throws UserAlreadyExistsException, PasswordNotEqualException {
-        User user = userRepository.getByEmail(email);
-        if(user != null){
-            throw new UserAlreadyExistsException();
+    public void register(String username, String email, String password, String confirmPassword) throws UserAlreadyExistsException, PasswordNotEqualException, BlankFieldsException {
+
+        if (username.equals("") || email.equals("") || password.equals("") || confirmPassword.equals("")) {
+            throw new BlankFieldsException();
         } else {
-            if(!password.equals(confirmPassword)){
-                throw new PasswordNotEqualException();
+            User user = userRepository.getByEmail(email);
+
+            if (user != null) {
+                throw new UserAlreadyExistsException();
             } else {
-                userRepository.save(new User(username, email, password, Role.USER));
+                if (!password.equals(confirmPassword)) {
+                    throw new PasswordNotEqualException();
+                } else {
+                    userRepository.save(new User(username, email, password, Role.USER));
+                }
             }
         }
     }
 
     public void authenticate(String username, String password) throws AuthException {
         User user = userRepository.getByUsername(username);
-        if(user != null && user.checkPassword(password)){
+        if (user != null && user.checkPassword(password)) {
             createRoutes(user.getRole());
             VaadinSession.getCurrent().setAttribute(User.class, user);
         } else {
             throw new AuthException();
         }
     }
-//DE ADAUGAT AL 3 LEA PARAMETRU
-private void createRoutes(Role role) {
-    getAuthorizedRoutes(role).forEach(route ->
-                    RouteConfiguration.forSessionScope().setRoute(
-                            route.route, route.view));
-}
 
-    public List<AuthorizedRoute> getAuthorizedRoutes(Role role){
+    //DE ADAUGAT AL 3 LEA PARAMETRU
+    private void createRoutes(Role role) {
+        getAuthorizedRoutes(role).forEach(route ->
+                RouteConfiguration.forSessionScope().setRoute(
+                        route.route, route.view));
+    }
+
+    public List<AuthorizedRoute> getAuthorizedRoutes(Role role) {
         var routes = new ArrayList<AuthorizedRoute>();
 
-        if(role.equals(Role.USER)){
+        if (role.equals(Role.USER)) {
             routes.add(new AuthorizedRoute("home", "Home", HomeView.class));
             routes.add(new AuthorizedRoute("main", "Main", MainView.class));
             routes.add(new AuthorizedRoute("logout", "Logout", LogoutView.class));
-        } else if(role.equals(Role.DISPATCHER)) {
+        } else if (role.equals(Role.DISPATCHER)) {
             routes.add(new AuthorizedRoute("admin", "Admin", AdminView.class));
             routes.add(new AuthorizedRoute("home", "Home", HomeView.class));
             routes.add(new AuthorizedRoute("logout", "Logout", LogoutView.class));

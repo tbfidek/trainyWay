@@ -42,6 +42,9 @@ public class SignupView extends Div {
                             Notification.show("Your passwords are not equal!");
                         } catch (AuthService.UserAlreadyExistsException e) {
                             Notification.show("Entered email is already in use!");
+                        } catch (AuthService.BlankFieldsException e) {
+                            Notification.show("All fields must be completed!");
+
                         }
                     })
             );
