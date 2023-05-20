@@ -11,24 +11,18 @@ import org.apache.commons.lang3.RandomStringUtils;
 public class User extends AbstractEntity {
 
     private String username;
-
-    private String email;
     private String passwordSalt;
     private String passwordHash;
     private Role role;
 
     public User(){}
 
-    public User(String username, String email, String password, Role role){
+    public User(String username, String password, Role role){
         this.username = username;
-        this.email = email;
         this.role = role;
         this.passwordSalt = RandomStringUtils.randomAlphabetic(32);
         this.passwordHash = DigestUtils.sha1Hex(password + passwordSalt);
     }
-
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
 
     public boolean checkPassword(String password){
         return DigestUtils.sha1Hex(password + passwordSalt).equals(passwordHash);
