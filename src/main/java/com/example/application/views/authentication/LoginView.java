@@ -27,6 +27,8 @@ public class LoginView extends Div {
             var username = new TextField("username");
             var password = new PasswordField("password");
             add(
+                    //        save.addClickShortcut(Key.ENTER);
+
                     new H1("Welcomee"),
                     username,
                     password,

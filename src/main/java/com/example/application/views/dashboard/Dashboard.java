@@ -1,4 +1,4 @@
-package com.example.application.views.main;
+package com.example.application.views.dashboard;
 
 import com.example.application.data.entity.User;
 import com.example.application.data.service.AuthService;
@@ -15,16 +15,16 @@ import com.vaadin.flow.server.VaadinSession;
 
 import java.util.List;
 
-public class MainLayout extends AppLayout {
+public class Dashboard extends AppLayout {
     private final AuthService security;
-    public MainLayout(AuthService security) {
+    public Dashboard(AuthService security) {
         this.security = security;
         createHeader();
         createDrawer();
     }
 
     private void createHeader() {
-        H1 logo = new H1("Vaadin CRM");
+        H1 logo = new H1("trainyWay");
         logo.addClassNames("text-l", "m-m");
 
         Button logout = new Button("Log out", e -> {UI.getCurrent().getPage().setLocation(" ");
@@ -59,36 +59,4 @@ public class MainLayout extends AppLayout {
         addToDrawer(new VerticalLayout(list));
     }
 }
-//import com.example.application.data.entity.User;
-//import com.example.application.data.service.AuthService;
-//import com.vaadin.flow.component.Key;
-//import com.vaadin.flow.component.button.Button;
-//import com.vaadin.flow.component.notification.Notification;
-//import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-//import com.vaadin.flow.component.textfield.TextField;
-//import com.vaadin.flow.router.PageTitle;
-//import com.vaadin.flow.router.Route;
-//import com.vaadin.flow.server.VaadinSession;
-//
-//@PageTitle("Main")
-//public class MainView extends HorizontalLayout {
-//
-//    private TextField name;
-//    private Button sayHello;
-//
-//    public MainView() {
-//        name = new TextField("Your name");
-//        User u = VaadinSession.getCurrent().getAttribute(User.class);
-//        sayHello = new Button("Say hello " + u.getUsername());
-//        sayHello.addClickListener(e -> {
-//            Notification.show("Hello " + name.getValue());
-//        });
-//        sayHello.addClickShortcut(Key.ENTER);
-//
-//        setMargin(true);
-//        setVerticalComponentAlignment(Alignment.END, name, sayHello);
-//
-//        add(name, sayHello);
-//    }
-//
-//}
+

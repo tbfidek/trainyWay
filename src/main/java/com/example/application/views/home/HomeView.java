@@ -35,10 +35,10 @@ public class HomeView extends VerticalLayout {
         grid.setHeight("100%");
         grid.addColumn("trainName").setAutoWidth(true).setHeader("train");
         grid.addColumn("depStation").setAutoWidth(true).setHeader("departure station");
-        grid.addColumn("depTime").setAutoWidth(true).setHeader("departure time");;
-        grid.addColumn("arrStation").setAutoWidth(true).setHeader("arrival station");;
-        grid.addColumn("arrTime").setAutoWidth(true).setHeader("arrival time");;
-        grid.addColumn("delay").setAutoWidth(true).setHeader("delay");;
+        grid.addColumn("depTime").setAutoWidth(true).setHeader("departure time");
+        grid.addColumn("arrStation").setAutoWidth(true).setHeader("arrival station");
+        grid.addColumn("arrTime").setAutoWidth(true).setHeader("arrival time");
+        grid.addColumn("delay").setAutoWidth(true).setHeader("delay");
         grid.setItems(query -> trainService.list(
                         PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)))
                 .stream());

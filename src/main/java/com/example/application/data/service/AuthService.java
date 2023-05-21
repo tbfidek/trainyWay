@@ -4,7 +4,7 @@ import com.example.application.data.Role;
 import com.example.application.data.entity.User;
 import com.example.application.views.admin.AdminView;
 import com.example.application.views.home.HomeView;
-import com.example.application.views.main.MainLayout;
+import com.example.application.views.dashboard.Dashboard;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.router.RouteConfiguration;
 import com.vaadin.flow.server.VaadinSession;
@@ -74,7 +74,7 @@ public class AuthService {
     private void createRoutes(Role role) {
         getAuthorizedRoutes(role).forEach(route ->
                 RouteConfiguration.forSessionScope().setRoute(
-                        route.route, route.view, MainLayout.class));
+                        route.route, route.view, Dashboard.class));
     }
 
     public List<AuthorizedRoute> getAuthorizedRoutes(Role role) {
