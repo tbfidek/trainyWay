@@ -5,6 +5,7 @@ import com.example.application.data.entity.User;
 import com.example.application.views.admin.AdminView;
 import com.example.application.views.home.HomeView;
 import com.example.application.views.dashboard.Dashboard;
+import com.example.application.views.ticket.TicketView;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.router.RouteConfiguration;
 import com.vaadin.flow.server.VaadinSession;
@@ -44,6 +45,7 @@ public class AuthService {
 
     public void register(String username, String email, String password, String confirmPassword) throws UserAlreadyExistsException, PasswordNotEqualException, BlankFieldsException {
 
+
         if (username.equals("") || email.equals("") || password.equals("") || confirmPassword.equals("")) {
             throw new BlankFieldsException();
         } else {
@@ -82,11 +84,14 @@ public class AuthService {
 
         if (role.equals(Role.USER)) {
             routes.add(new AuthorizedRoute("home", "Home", HomeView.class));
+            routes.add(new AuthorizedRoute("ticket", "Ticket", TicketView.class));
         } else if (role.equals(Role.DISPATCHER)) {
             routes.add(new AuthorizedRoute("admin", "Admin", AdminView.class));
             routes.add(new AuthorizedRoute("home", "Home", HomeView.class));
+            routes.add(new AuthorizedRoute("ticket", "Ticket", TicketView.class));
 
         }
         return routes;
     }
+
 }
