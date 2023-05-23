@@ -110,7 +110,7 @@ public class AdminView extends Div {
             try {
                 if (this.train == null) {
                     this.train = new Train();
-                    this.train.setId(trainService.getMaxTrainId() + 1);
+                    //this.train.setId(trainService.getMaxTrainId() + 1);
                 }
                 binder.writeBean(this.train);
                 trainService.update(this.train);

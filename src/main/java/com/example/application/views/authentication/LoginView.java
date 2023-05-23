@@ -2,6 +2,7 @@ package com.example.application.views.authentication;
 
 import com.example.application.data.entity.User;
 import com.example.application.data.service.AuthService;
+import com.example.application.data.service.EmailService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
@@ -19,7 +20,9 @@ import com.vaadin.flow.server.VaadinSession;
 @Route("")
 public class LoginView extends Div {
 
-    public LoginView(AuthService authService) {
+    private EmailService emailService;
+    public LoginView(AuthService authService, EmailService emailService) {
+        this.emailService = emailService;
         if (VaadinSession.getCurrent().getAttribute(User.class) != null) {
             UI.getCurrent().getPage().executeJs("document.location = '/home';");
         } else {
@@ -44,6 +47,10 @@ public class LoginView extends Div {
                             //authService.authenticate(username.getValue(), password.getValue());
                             UI.getCurrent().navigate("signup");
 
+                    }),
+                    new Button("Forgot password?", buttonClickEvent -> {
+                        Notification.show("instructions sent to your email");
+                        emailService.sendTemporaryPasswordEmail("impeste@gmail.com", "pl");
                     })
             );
 
