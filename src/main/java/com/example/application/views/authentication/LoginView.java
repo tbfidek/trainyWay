@@ -15,6 +15,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
 
+
 @CssImport("../frontend/styles/views/auth/login-view.css")
 @PageTitle("Login")
 @Route("")
@@ -49,8 +50,11 @@ public class LoginView extends Div {
 
                     }),
                     new Button("Forgot password?", buttonClickEvent -> {
-                        Notification.show("instructions sent to your email");
-                        emailService.sendTemporaryPasswordEmail("impeste@gmail.com", "pl");
+                        Notification.show("instructions will be sent to your email");
+                        Thread inputThread = new Thread(() -> {
+                            emailService.sendTemporaryPasswordEmail("impeste@gmail.com", "pl");
+                        });
+                        inputThread.start();
                     })
             );
 
