@@ -6,9 +6,11 @@ import com.example.application.data.service.EmailService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
@@ -21,7 +23,8 @@ import com.vaadin.flow.server.VaadinSession;
 @Route("")
 public class LoginView extends Div {
 
-    private EmailService emailService;
+    private final EmailService emailService;
+
     public LoginView(AuthService authService, EmailService emailService) {
         this.emailService = emailService;
         if (VaadinSession.getCurrent().getAttribute(User.class) != null) {
@@ -45,20 +48,38 @@ public class LoginView extends Div {
                         }
                     }),
                     new Button("Signup", buttonClickEvent -> {
-                            //authService.authenticate(username.getValue(), password.getValue());
-                            UI.getCurrent().navigate("signup");
-
+                        //authService.authenticate(username.getValue(), password.getValue());
+                        UI.getCurrent().navigate("signup");
                     }),
-                    new Button("Forgot password?", buttonClickEvent -> {
-                        Notification.show("instructions will be sent to your email");
-                        Thread inputThread = new Thread(() -> {
-                            emailService.sendTemporaryPasswordEmail("impeste@gmail.com");
-                        });
-                        inputThread.start();
-                    })
+                    new Button("Forgot password?", buttonClickEvent -> setPopupLayout())
             );
 
         }
+    }
+
+    private void setPopupLayout() {
+        Dialog dialog = new Dialog();
+        EmailField emailField = new EmailField();
+        emailField.setLabel("enter an email address:");
+        emailField.getElement().setAttribute("name", "email");
+        emailField.setClearButtonVisible(true);
+        Button cancelButton = new Button("Cancel", e -> dialog.close());
+        Button sendButton = new Button("Send", buttonClickEvent1 -> {
+            if(!emailField.isInvalid()) {
+                Notification.show("instructions will be sent to your email");
+                Thread inputThread = new Thread(() -> emailService.sendTemporaryPasswordEmail(emailField.getValue()));
+                inputThread.start();
+                dialog.close();
+            }
+            else {
+                emailField.setErrorMessage("invalid email format");
+            }
+        });
+        dialog.getFooter().add(sendButton);
+        dialog.getFooter().add(cancelButton);
+        dialog.getHeader().add(emailField);
+        add(dialog);
+        dialog.open();
     }
 
 }
