@@ -3,6 +3,7 @@ package com.example.application.views.ticket;
 import com.example.application.data.entity.Train;
 import com.example.application.data.entity.User;
 import com.example.application.data.service.AuthService;
+import com.example.application.data.service.EmailService;
 import com.example.application.data.service.TrainService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
@@ -13,7 +14,7 @@ import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
@@ -43,12 +44,15 @@ public class TicketView extends Div {
 
     private final TrainService trainService;
 
+    private final EmailService emailService;
     private final AuthService authService;
     private static final Set<String> states = new LinkedHashSet<>();
     private static final Set<String> countries = new LinkedHashSet<>();
 
+    private String[] ticketDetails = new String[6];
     private static final List<String> trains = new LinkedList<>();
 
+    private ComboBox<String> trainSelect;
     private static final List<String> seatNumbers = new LinkedList<>();
 
     static {
@@ -105,8 +109,9 @@ public class TicketView extends Div {
                 "Zimbabwe"));
     }
 
-    public TicketView(TrainService trainService, AuthService authService) {
+    public TicketView(TrainService trainService, EmailService emailService, AuthService authService) {
         this.trainService = trainService;
+        this.emailService = emailService;
         this.authService = authService;
 
         for(Train t : trainService.getAll()){
@@ -136,7 +141,6 @@ public class TicketView extends Div {
 
         checkoutForm.add(createPersonalDetailsSection());
         checkoutForm.add(createShippingAddressSection());
-        //checkoutForm.add(createPaymentInformationSection());
         checkoutForm.add(new Hr());
         checkoutForm.add(createFooter());
 
@@ -187,9 +191,27 @@ public class TicketView extends Div {
         H3 header = new H3("Train ticket details");
         header.addClassNames(Margin.Bottom.MEDIUM, Margin.Top.SMALL, FontSize.XXLARGE);
 
-        ComboBox<String> trainSelect = new ComboBox<>("Train");
+        trainSelect = new ComboBox<>("Train");
         trainSelect.setRequiredIndicatorVisible(true);
         trainSelect.addClassNames(Margin.Bottom.SMALL);
+
+        Div routeSelectionSection = new Div();
+        routeSelectionSection.addClassNames(Display.FLEX, FlexWrap.WRAP, Gap.MEDIUM);
+
+        ComboBox<String> routeDep = new ComboBox<>("From");
+        routeDep.setRequiredIndicatorVisible(true);
+        routeDep.setItems("1", "2", "3", "4", "5", "6");
+        routeDep.setVisible(false);
+        routeDep.addClassNames(Margin.Bottom.SMALL);
+
+        ComboBox<String> routeArr = new ComboBox<>("To");
+        routeArr.setRequiredIndicatorVisible(true);
+        routeArr.setItems("1", "2", "3", "4", "5", "6");
+        routeArr.setVisible(false);
+        routeArr.setEnabled(false);
+        routeArr.addClassNames(Margin.Bottom.SMALL);
+
+        routeSelectionSection.add(routeDep, routeArr);
 
         Div subSection = new Div();
         subSection.addClassNames(Display.FLEX, FlexWrap.WRAP, Gap.MEDIUM);
@@ -204,12 +226,26 @@ public class TicketView extends Div {
         seatNumber.setRequiredIndicatorVisible(true);
         seatNumber.setItems(seatNumbers);
         seatNumber.setVisible(false);
+        seatNumber.setEnabled(false);
         seatNumber.addClassNames(Margin.Bottom.SMALL);
 
         subSection.add(wagonNumber, seatNumber);
 
         trainSelect.setItems(trains);
-        trainSelect.addValueChangeListener(e -> {wagonNumber.setVisible(true); seatNumber.setVisible(true);});
+
+        float price = 9.5f * 4;
+        Paragraph ticketPrice = new Paragraph("Total: " + price + " lei.");
+        ticketPrice.setVisible(false);
+        ticketPrice.addClassNames(Margin.Top.MEDIUM, FontSize.MEDIUM, TextColor.SECONDARY);
+
+        wagonNumber.addValueChangeListener(e -> seatNumber.setEnabled(true));
+        //trainSelect.addValueChangeListener(e -> {wagonNumber.setVisible(true); seatNumber.setVisible(true);});
+        trainSelect.addValueChangeListener(e -> {routeDep.setVisible(true); routeArr.setVisible(true);});
+        routeDep.addValueChangeListener(e -> routeArr.setEnabled(true));
+        routeArr.addValueChangeListener(e -> {wagonNumber.setVisible(true); seatNumber.setVisible(true); updatePrice(ticketPrice, Integer.valueOf(routeArr.getValue()));});
+        seatNumber.addValueChangeListener(e -> {
+            ticketPrice.setVisible(true); updatePrice(ticketPrice, Integer.valueOf(routeArr.getValue()));
+        });
 
         //Checkbox sameAddress = new Checkbox("Billing address is the same as shipping address");
         //sameAddress.addClassNames(Margin.Top.SMALL);
@@ -217,60 +253,11 @@ public class TicketView extends Div {
         //Checkbox rememberAddress = new Checkbox("Remember address for next time");
 
         //shippingDetails.add(header, countrySelect, address, subSection, stateSelect); //sameAddress,
-        shippingDetails.add(header, trainSelect, subSection);
+        shippingDetails.add(header, trainSelect, routeSelectionSection, subSection, ticketPrice);
         //rememberAddress);
         return shippingDetails;
     }
 
-    private Component createPaymentInformationSection() {
-        Section paymentInfo = new Section();
-        paymentInfo.addClassNames(Display.FLEX, FlexDirection.COLUMN, Margin.Bottom.XLARGE, Margin.Top.MEDIUM);
-
-        Paragraph stepThree = new Paragraph("Checkout 3/3");
-        stepThree.addClassNames(Margin.NONE, FontSize.SMALL, TextColor.SECONDARY);
-
-        H3 header = new H3("Personal details");
-        header.addClassNames(Margin.Bottom.MEDIUM, Margin.Top.SMALL, FontSize.XXLARGE);
-
-        TextField cardHolder = new TextField("Cardholder name");
-        cardHolder.setRequiredIndicatorVisible(true);
-        cardHolder.setPattern("[\\p{L} \\-]+");
-        cardHolder.addClassNames(Margin.Bottom.SMALL);
-
-        Div subSectionOne = new Div();
-        subSectionOne.addClassNames(Display.FLEX, FlexWrap.WRAP, Gap.MEDIUM);
-
-        TextField cardNumber = new TextField("Card Number");
-        cardNumber.setRequiredIndicatorVisible(true);
-        cardNumber.setPattern("[\\d ]{12,23}");
-        cardNumber.addClassNames(Margin.Bottom.SMALL);
-
-        TextField securityCode = new TextField("Security Code");
-        securityCode.setRequiredIndicatorVisible(true);
-        securityCode.setPattern("[0-9]{3,4}");
-        securityCode.addClassNames(Flex.GROW, Margin.Bottom.SMALL);
-        securityCode.setHelperText("What is this?");
-
-        subSectionOne.add(cardNumber, securityCode);
-
-        Div subSectionTwo = new Div();
-        subSectionTwo.addClassNames(Display.FLEX, FlexWrap.WRAP, Gap.MEDIUM);
-
-        Select<String> expirationMonth = new Select<>();
-        expirationMonth.setLabel("Expiration month");
-        expirationMonth.setRequiredIndicatorVisible(true);
-        expirationMonth.setItems("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12");
-
-        Select<String> expirationYear = new Select<>();
-        expirationYear.setLabel("Expiration year");
-        expirationYear.setRequiredIndicatorVisible(true);
-        expirationYear.setItems("22", "23", "24", "25", "26");
-
-        subSectionTwo.add(expirationMonth, expirationYear);
-
-        paymentInfo.add(stepThree, header, cardHolder, subSectionTwo);
-        return paymentInfo;
-    }
 
     private Footer createFooter() {
         User user = VaadinSession.getCurrent().getAttribute(User.class);
@@ -283,9 +270,11 @@ public class TicketView extends Div {
 
         Button pay = new Button("Buy ticket", new Icon(VaadinIcon.LOCK));
         pay.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
-        pay.addClickListener(event -> {UI.getCurrent().navigate("home"); Notification n = Notification.show("Successfully bought the ticket, check your email for details!"); n.setDuration(3000); n.setPosition(Notification.Position.MIDDLE);});
-
-        //authService.sendMail("merge biletuu baaa mergem la bucuresti", "maroan0107@yahoo.com");
+        pay.addClickListener(event -> {UI.getCurrent().navigate("home"); Notification n = Notification.show("Successfully bought the ticket, details will be sent to your email!"); n.setDuration(4000); n.setPosition(Notification.Position.BOTTOM_START); n.addThemeVariants(NotificationVariant.LUMO_CONTRAST);});
+        Thread inputThread = new Thread(() -> {
+            emailService.sendTicketDetails("impeste@gmail.com", trainSelect.getValue(), "5", "6", "7", "8", "9");
+        });
+        inputThread.start();
 
         footer.add(cancel, pay);
         return footer;
@@ -330,5 +319,9 @@ public class TicketView extends Div {
 
         item.add(subSection, priceSpan);
         return item;
+    }
+
+    public void updatePrice(Paragraph p, int value){
+        p.setText("Total " + 9.5 * value + " lei.");
     }
 }

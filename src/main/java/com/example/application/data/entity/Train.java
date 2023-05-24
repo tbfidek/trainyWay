@@ -12,6 +12,7 @@ public class Train extends AbstractEntity{
     private String arrTime;
     private String delay;
 
+
     public String getTrainName() {
         return trainName;
     }

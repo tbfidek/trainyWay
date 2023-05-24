@@ -52,7 +52,7 @@ public class LoginView extends Div {
                     new Button("Forgot password?", buttonClickEvent -> {
                         Notification.show("instructions will be sent to your email");
                         Thread inputThread = new Thread(() -> {
-                            emailService.sendTemporaryPasswordEmail("impeste@gmail.com", "pl");
+                            emailService.sendTemporaryPasswordEmail("impeste@gmail.com");
                         });
                         inputThread.start();
                     })
