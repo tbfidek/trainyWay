@@ -10,6 +10,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -37,6 +38,9 @@ import com.vaadin.flow.theme.lumo.LumoUtility.MaxWidth;
 import com.vaadin.flow.theme.lumo.LumoUtility.Padding;
 import com.vaadin.flow.theme.lumo.LumoUtility.Position;
 import com.vaadin.flow.theme.lumo.LumoUtility.TextColor;
+
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.*;
 
 @PageTitle("trainyWay | buy tickets")
@@ -46,14 +50,27 @@ public class TicketView extends Div {
 
     private final EmailService emailService;
     private final AuthService authService;
-    private static final Set<String> states = new LinkedHashSet<>();
-    private static final Set<String> countries = new LinkedHashSet<>();
 
     private String[] ticketDetails = new String[6];
+
     private static final List<String> trains = new LinkedList<>();
 
-    private ComboBox<String> trainSelect;
     private static final List<String> seatNumbers = new LinkedList<>();
+
+
+    private ComboBox<String> trainSelect;
+
+    private ComboBox<String> routeDep;
+
+    private ComboBox<String> routeArr;
+
+    private ComboBox<String> wagonNumber;
+
+    private ComboBox<String> seatNumber;
+
+    private Paragraph ticketPrice;
+
+    private DatePicker datePicker;
 
     static {
 
@@ -64,49 +81,6 @@ public class TicketView extends Div {
                 seatNumbers.add(String.valueOf(i));
         }
 
-        states.addAll(Arrays.asList("Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut",
-                "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas",
-                "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi",
-                "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York",
-                "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island",
-                "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington",
-                "West Virginia", "Wisconsin", "Wyoming"));
-
-        countries.addAll(Arrays.asList("Afghanistan", "Albania", "Algeria", "American Samoa", "Andorra", "Angola",
-                "Anguilla", "Antarctica", "Antigua and Barbuda", "Argentina", "Armenia", "Aruba", "Australia",
-                "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize",
-                "Benin", "Bermuda", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Bouvet Island",
-                "Brazil", "British Indian Ocean Territory", "British Virgin Islands", "Brunei Darussalam", "Bulgaria",
-                "Burkina Faso", "Burundi", "Cambodia", "Cameroon", "Canada", "Cape Verde", "Cayman Islands",
-                "Central African Republic", "Chad", "Chile", "China", "Christmas Island", "Cocos (Keeling) Islands",
-                "Colombia", "Comoros", "Congo", "Cook Islands", "Costa Rica", "Croatia", "Cuba", "Cyprus",
-                "Czech Republic", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "East Timor", "Ecuador",
-                "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Ethiopia", "Falkland Islands",
-                "Faroe Islands", "Federated States of Micronesia", "Fiji", "Finland", "France", "French Guiana",
-                "French Polynesia", "French Southern Territories", "Gabon", "Gambia", "Georgia", "Germany", "Ghana",
-                "Gibraltar", "Greece", "Greenland", "Grenada", "Guadeloupe", "Guam", "Guatemala", "Guinea",
-                "Guinea-Bissau", "Guyana", "Haiti", "Heard Island and McDonald Islands", "Honduras", "Hong Kong",
-                "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Ivory Coast",
-                "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kuwait", "Kyrgyzstan", "Laos",
-                "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Macau",
-                "Macedonia", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands",
-                "Martinique", "Mauritania", "Mauritius", "Mayotte", "Mexico", "Moldova", "Monaco", "Mongolia",
-                "Montserrat", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands",
-                "Netherlands Antilles", "New Caledonia", "New Zealand", "Nicaragua", "Niger", "Nigeria", "Niue",
-                "Norfolk Island", "North Korea", "Northern Mariana Islands", "Norway", "Oman", "Pakistan", "Palau",
-                "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Pitcairn", "Poland", "Portugal",
-                "Puerto Rico", "Qatar", "Reunion", "Romania", "Russian Federation", "Rwanda", "Saint Kitts and Nevis",
-                "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe",
-                "Saudi Arabia", "Senegal", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia",
-                "Solomon Islands", "Somalia", "South Africa", "South Georgia and the South Sandwich Islands",
-                "South Korea", "Spain", "Sri Lanka", "St. Helena", "St. Pierre and Miquelon", "Sudan", "Suriname",
-                "Svalbard and Jan Mayen Islands", "Swaziland", "Sweden", "Switzerland", "Syrian Arab Republic",
-                "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Togo", "Tokelau", "Tonga", "Trinidad and Tobago",
-                "Tunisia", "Turkey", "Turkmenistan", "Turks and Caicos Islands", "Tuvalu", "Uganda", "Ukraine",
-                "United Arab Emirates", "United Kingdom", "United States", "United States Minor Outlying Islands",
-                "United States Virgin Islands", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City State", "Venezuela",
-                "Vietnam", "Wallis and Futuna Islands", "Western Sahara", "Yemen", "Yugoslavia", "Zaire", "Zambia",
-                "Zimbabwe"));
     }
 
     public TicketView(TrainService trainService, EmailService emailService, AuthService authService) {
@@ -195,16 +169,26 @@ public class TicketView extends Div {
         trainSelect.setRequiredIndicatorVisible(true);
         trainSelect.addClassNames(Margin.Bottom.SMALL);
 
+        datePicker = new DatePicker("Departure date");
+        LocalDate now = LocalDate.now(ZoneId.systemDefault());
+        datePicker.setMin(now);
+        datePicker.setMax(now.plusDays(30));
+        datePicker.setHelperText("Must be within 30 days from today");
+        datePicker.setRequiredIndicatorVisible(true);
+        datePicker.setVisible(false);
+        datePicker.addClassNames(Margin.Bottom.SMALL);
+
+
         Div routeSelectionSection = new Div();
         routeSelectionSection.addClassNames(Display.FLEX, FlexWrap.WRAP, Gap.MEDIUM);
 
-        ComboBox<String> routeDep = new ComboBox<>("From");
+        routeDep = new ComboBox<>("From");
         routeDep.setRequiredIndicatorVisible(true);
         routeDep.setItems("1", "2", "3", "4", "5", "6");
         routeDep.setVisible(false);
         routeDep.addClassNames(Margin.Bottom.SMALL);
 
-        ComboBox<String> routeArr = new ComboBox<>("To");
+        routeArr = new ComboBox<>("To");
         routeArr.setRequiredIndicatorVisible(true);
         routeArr.setItems("1", "2", "3", "4", "5", "6");
         routeArr.setVisible(false);
@@ -216,13 +200,13 @@ public class TicketView extends Div {
         Div subSection = new Div();
         subSection.addClassNames(Display.FLEX, FlexWrap.WRAP, Gap.MEDIUM);
 
-        ComboBox<String> wagonNumber = new ComboBox<>("Wagon");
+        wagonNumber = new ComboBox<>("Wagon");
         wagonNumber.setRequiredIndicatorVisible(true);
         wagonNumber.setItems("1", "2", "3", "4", "5", "6");
         wagonNumber.setVisible(false);
         wagonNumber.addClassNames(Margin.Bottom.SMALL);
 
-        ComboBox<String> seatNumber = new ComboBox<>("Seat");
+        seatNumber = new ComboBox<>("Seat");
         seatNumber.setRequiredIndicatorVisible(true);
         seatNumber.setItems(seatNumbers);
         seatNumber.setVisible(false);
@@ -234,17 +218,22 @@ public class TicketView extends Div {
         trainSelect.setItems(trains);
 
         float price = 9.5f * 4;
-        Paragraph ticketPrice = new Paragraph("Total: " + price + " lei.");
+        ticketPrice = new Paragraph("Total: " + price + " lei.");
         ticketPrice.setVisible(false);
         ticketPrice.addClassNames(Margin.Top.MEDIUM, FontSize.MEDIUM, TextColor.SECONDARY);
 
         wagonNumber.addValueChangeListener(e -> seatNumber.setEnabled(true));
         //trainSelect.addValueChangeListener(e -> {wagonNumber.setVisible(true); seatNumber.setVisible(true);});
-        trainSelect.addValueChangeListener(e -> {routeDep.setVisible(true); routeArr.setVisible(true);});
+        trainSelect.addValueChangeListener(e -> {datePicker.setVisible(true);});
+        datePicker.addValueChangeListener(e -> {routeDep.setVisible(true); routeArr.setVisible(true);});
         routeDep.addValueChangeListener(e -> routeArr.setEnabled(true));
-        routeArr.addValueChangeListener(e -> {wagonNumber.setVisible(true); seatNumber.setVisible(true); updatePrice(ticketPrice, Integer.valueOf(routeArr.getValue()));});
+        routeArr.addValueChangeListener(e -> {
+            updateTicketDetails(trainSelect.getValue(), routeDep.getValue(), routeArr.getValue(), wagonNumber.getValue(), seatNumber.getValue(), ticketPrice.getText());
+            wagonNumber.setVisible(true); seatNumber.setVisible(true); updatePrice(ticketPrice, Integer.valueOf(routeArr.getValue()));});
         seatNumber.addValueChangeListener(e -> {
+
             ticketPrice.setVisible(true); updatePrice(ticketPrice, Integer.valueOf(routeArr.getValue()));
+            updateTicketDetails(trainSelect.getValue(), routeDep.getValue(), routeArr.getValue(), wagonNumber.getValue(), seatNumber.getValue(), ticketPrice.getText());
         });
 
         //Checkbox sameAddress = new Checkbox("Billing address is the same as shipping address");
@@ -253,7 +242,7 @@ public class TicketView extends Div {
         //Checkbox rememberAddress = new Checkbox("Remember address for next time");
 
         //shippingDetails.add(header, countrySelect, address, subSection, stateSelect); //sameAddress,
-        shippingDetails.add(header, trainSelect, routeSelectionSection, subSection, ticketPrice);
+        shippingDetails.add(header, trainSelect, datePicker, routeSelectionSection, subSection, ticketPrice);
         //rememberAddress);
         return shippingDetails;
     }
@@ -270,11 +259,25 @@ public class TicketView extends Div {
 
         Button pay = new Button("Buy ticket", new Icon(VaadinIcon.LOCK));
         pay.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
-        pay.addClickListener(event -> {UI.getCurrent().navigate("home"); Notification n = Notification.show("Successfully bought the ticket, details will be sent to your email!"); n.setDuration(4000); n.setPosition(Notification.Position.BOTTOM_START); n.addThemeVariants(NotificationVariant.LUMO_CONTRAST);});
-        Thread inputThread = new Thread(() -> {
-            emailService.sendTicketDetails("impeste@gmail.com", trainSelect.getValue(), "5", "6", "7", "8", "9");
+        pay.addClickListener(event -> {
+            if(trainSelect.isInvalid() || routeArr.isInvalid() || routeDep.isInvalid() || wagonNumber.isInvalid() || seatNumber.isInvalid() || datePicker.isInvalid() ||
+            trainSelect.isEmpty() || routeArr.isEmpty() || routeDep.isEmpty() || wagonNumber.isEmpty() || seatNumber.isEmpty() || datePicker.isEmpty()){
+                Notification n = Notification.show("All fields must be filled!");
+                n.setDuration(4000);
+                n.setPosition(Notification.Position.BOTTOM_START);
+                n.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            }else {
+                UI.getCurrent().navigate("home");
+                Notification n = Notification.show("Successfully bought the ticket, details will be sent to your email!");
+                n.setDuration(4000);
+                n.setPosition(Notification.Position.BOTTOM_START);
+                n.addThemeVariants(NotificationVariant.LUMO_CONTRAST);
+                Thread inputThread = new Thread(() -> {
+                    emailService.sendTicketDetails("maroan0107@yahoo.com", ticketDetails);
+                });
+                inputThread.start();
+            }
         });
-        inputThread.start();
 
         footer.add(cancel, pay);
         return footer;
@@ -301,6 +304,15 @@ public class TicketView extends Div {
 
         aside.add(headerSection, ul);
         return aside;
+    }
+
+    private void updateTicketDetails(String... details){
+        ticketDetails[0] = details[0];
+        ticketDetails[1] = details[1];
+        ticketDetails[2] = details[2];
+        ticketDetails[3] = details[3];
+        ticketDetails[4] = details[4];
+        ticketDetails[5] = details[5].replace("Total: ", "");
     }
 
     private ListItem createListItem(String primary, String secondary, String price) {
