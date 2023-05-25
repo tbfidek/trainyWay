@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 public abstract class AbstractEntity {
 
     @Id
+    @GeneratedValue(strategy=GenerationType.SEQUENCE)
     private Long id;
 
     public Long getId() {
