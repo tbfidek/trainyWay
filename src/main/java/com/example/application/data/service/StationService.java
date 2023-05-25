@@ -43,7 +43,7 @@ public class StationService {
     public int count() {
         return (int) repository.count();
     }
-    public List<Station> getStationById(String id){
-        return repository.stationList(id);
+    public List<Station> getStationsByTrainId(String id){
+        return repository.getStationsByTrainId(id);
     }
 }

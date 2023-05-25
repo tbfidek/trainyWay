@@ -10,8 +10,8 @@ import java.util.List;
 public interface StationRepository extends
         JpaRepository<Station, Long>,
         JpaSpecificationExecutor<Station> {
-    @Query(value = "select * from stations where trainid = ?1", nativeQuery = true)
-    List<Station> stationList(String id);
+    @Query(value = "select * from \"getstationsbytrainid\"(?1)", nativeQuery = true)
+    List<Station> getStationsByTrainId(String id);
 
 }
 

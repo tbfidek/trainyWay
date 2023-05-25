@@ -1,10 +1,10 @@
 package com.example.application.views.ticket;
 
+import com.example.application.data.entity.Station;
+import com.example.application.data.entity.Ticket;
 import com.example.application.data.entity.Train;
 import com.example.application.data.entity.User;
-import com.example.application.data.service.AuthService;
-import com.example.application.data.service.EmailService;
-import com.example.application.data.service.TrainService;
+import com.example.application.data.service.*;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -48,12 +48,17 @@ public class TicketView extends Div {
 
     private final TrainService trainService;
 
+    private final TicketService ticketService;
     private final EmailService emailService;
     private final AuthService authService;
+
+    private final StationService stationService;
 
     private String[] ticketDetails = new String[6];
 
     private static final List<String> trains = new LinkedList<>();
+    private List<String> fromStations = new LinkedList<>();
+    private List<String> toStations = new LinkedList<>();
 
     private static final List<String> seatNumbers = new LinkedList<>();
 
@@ -83,10 +88,12 @@ public class TicketView extends Div {
 
     }
 
-    public TicketView(TrainService trainService, EmailService emailService, AuthService authService) {
+    public TicketView(TrainService trainService, EmailService emailService, AuthService authService, TicketService ticketService, StationService stationService) {
         this.trainService = trainService;
         this.emailService = emailService;
         this.authService = authService;
+        this.ticketService = ticketService;
+        this.stationService = stationService;
 
         for(Train t : trainService.getAll()){
             trains.add(t.getTrainName() + " [" + t.getDepStation() + " -> " + t.getArrStation() + "]");
@@ -99,19 +106,12 @@ public class TicketView extends Div {
                 Margin.Horizontal.AUTO, Padding.Bottom.LARGE, Padding.Horizontal.LARGE);
 
         content.add(createCheckoutForm());
-        //content.add(createAside());
         add(content);
     }
 
     private Component createCheckoutForm() {
         Section checkoutForm = new Section();
         checkoutForm.addClassNames(Display.FLEX, FlexDirection.COLUMN, Flex.GROW);
-
-        H2 header = new H2("Train ticket");
-        header.addClassNames(Margin.Bottom.NONE, Margin.Top.XLARGE, FontSize.XXXLARGE);
-        //Paragraph note = new Paragraph("All fields are required unless otherwise noted");
-        //note.addClassNames(Margin.Bottom.XLARGE, Margin.Top.NONE, TextColor.SECONDARY);
-        //checkoutForm.add(header, note);
 
         checkoutForm.add(createPersonalDetailsSection());
         checkoutForm.add(createShippingAddressSection());
@@ -125,9 +125,6 @@ public class TicketView extends Div {
         User currentUser = VaadinSession.getCurrent().getAttribute(User.class);
         Section personalDetails = new Section();
         personalDetails.addClassNames(Display.FLEX, FlexDirection.COLUMN, Margin.Bottom.XLARGE, Margin.Top.MEDIUM);
-
-        //Paragraph stepOne = new Paragraph("Checkout 1/3");
-        //stepOne.addClassNames(Margin.NONE, FontSize.SMALL, TextColor.SECONDARY);
 
         H3 header = new H3("Personal details");
         header.addClassNames(Margin.Bottom.MEDIUM, Margin.Top.SMALL, FontSize.XXLARGE);
@@ -148,9 +145,6 @@ public class TicketView extends Div {
         phone.setPattern("[\\d \\-\\+]+");
         phone.addClassNames(Margin.Bottom.SMALL);
 
-        //Checkbox rememberDetails = new Checkbox("Remember personal details for next time");
-        //rememberDetails.addClassNames(Margin.Top.SMALL);
-
         personalDetails.add(header, name, email, phone);
         return personalDetails;
     }
@@ -159,8 +153,6 @@ public class TicketView extends Div {
         Section shippingDetails = new Section();
         shippingDetails.addClassNames(Display.FLEX, FlexDirection.COLUMN, Margin.Bottom.XLARGE, Margin.Top.MEDIUM);
 
-        //Paragraph stepTwo = new Paragraph("Checkout 2/3");
-        //stepTwo.addClassNames(Margin.NONE, FontSize.SMALL, TextColor.SECONDARY);
 
         H3 header = new H3("Train ticket details");
         header.addClassNames(Margin.Bottom.MEDIUM, Margin.Top.SMALL, FontSize.XXLARGE);
@@ -184,7 +176,7 @@ public class TicketView extends Div {
 
         routeDep = new ComboBox<>("From");
         routeDep.setRequiredIndicatorVisible(true);
-        routeDep.setItems("1", "2", "3", "4", "5", "6");
+        routeDep.setItems(fromStations);
         routeDep.setVisible(false);
         routeDep.addClassNames(Margin.Bottom.SMALL);
 
@@ -224,7 +216,7 @@ public class TicketView extends Div {
 
         wagonNumber.addValueChangeListener(e -> seatNumber.setEnabled(true));
         //trainSelect.addValueChangeListener(e -> {wagonNumber.setVisible(true); seatNumber.setVisible(true);});
-        trainSelect.addValueChangeListener(e -> {datePicker.setVisible(true);});
+        trainSelect.addValueChangeListener(e -> {datePicker.setVisible(true); updateStations(trainSelect.getValue());});
         datePicker.addValueChangeListener(e -> {routeDep.setVisible(true); routeArr.setVisible(true);});
         routeDep.addValueChangeListener(e -> routeArr.setEnabled(true));
         routeArr.addValueChangeListener(e -> {
@@ -236,17 +228,20 @@ public class TicketView extends Div {
             updateTicketDetails(trainSelect.getValue(), routeDep.getValue(), routeArr.getValue(), wagonNumber.getValue(), seatNumber.getValue(), ticketPrice.getText());
         });
 
-        //Checkbox sameAddress = new Checkbox("Billing address is the same as shipping address");
-        //sameAddress.addClassNames(Margin.Top.SMALL);
-
-        //Checkbox rememberAddress = new Checkbox("Remember address for next time");
-
-        //shippingDetails.add(header, countrySelect, address, subSection, stateSelect); //sameAddress,
         shippingDetails.add(header, trainSelect, datePicker, routeSelectionSection, subSection, ticketPrice);
-        //rememberAddress);
         return shippingDetails;
     }
 
+    private void updateStations(String id){
+        //System.out.println(id.split(" ")[0]);
+        Optional<Train> t = trainService.get(id.split(" ")[0]);
+        fromStations.clear();
+        for(Station s : stationService.getStationsByTrainId(t.get().getId().toString())){
+            fromStations.add(s.getStationName() + " [" + s.getArrTime() + "]");
+       }
+        routeDep.setItems(fromStations);
+        routeArr.setItems(fromStations);
+    }
 
     private Footer createFooter() {
         User user = VaadinSession.getCurrent().getAttribute(User.class);
@@ -283,29 +278,6 @@ public class TicketView extends Div {
         return footer;
     }
 
-    private Aside createAside() {
-        Aside aside = new Aside();
-        aside.addClassNames(Background.CONTRAST_5, BoxSizing.BORDER, Padding.LARGE, BorderRadius.LARGE,
-                Position.STICKY);
-        Header headerSection = new Header();
-        headerSection.addClassNames(Display.FLEX, AlignItems.CENTER, JustifyContent.BETWEEN, Margin.Bottom.MEDIUM);
-        H3 header = new H3("Order");
-        header.addClassNames(Margin.NONE);
-        Button edit = new Button("Edit");
-        edit.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
-        headerSection.add(header, edit);
-
-        UnorderedList ul = new UnorderedList();
-        ul.addClassNames(ListStyleType.NONE, Margin.NONE, Padding.NONE, Display.FLEX, FlexDirection.COLUMN, Gap.MEDIUM);
-
-        ul.add(createListItem("Vanilla cracker", "With wholemeal flour", "$7.00"));
-        ul.add(createListItem("Vanilla blueberry cake", "With blueberry jam", "$8.00"));
-        ul.add(createListItem("Vanilla pastry", "With wholemeal flour", "$5.00"));
-
-        aside.add(headerSection, ul);
-        return aside;
-    }
-
     private void updateTicketDetails(String... details){
         ticketDetails[0] = details[0];
         ticketDetails[1] = details[1];
@@ -315,23 +287,6 @@ public class TicketView extends Div {
         ticketDetails[5] = details[5].replace("Total: ", "");
     }
 
-    private ListItem createListItem(String primary, String secondary, String price) {
-        ListItem item = new ListItem();
-        item.addClassNames(Display.FLEX, JustifyContent.BETWEEN);
-
-        Div subSection = new Div();
-        subSection.addClassNames(Display.FLEX, FlexDirection.COLUMN);
-
-        subSection.add(new Span(primary));
-        Span secondarySpan = new Span(secondary);
-        secondarySpan.addClassNames(FontSize.SMALL, TextColor.SECONDARY);
-        subSection.add(secondarySpan);
-
-        Span priceSpan = new Span(price);
-
-        item.add(subSection, priceSpan);
-        return item;
-    }
 
     public void updatePrice(Paragraph p, int value){
         p.setText("Total " + 9.5 * value + " lei.");

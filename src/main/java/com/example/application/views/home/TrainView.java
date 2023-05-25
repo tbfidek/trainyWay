@@ -7,11 +7,15 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
 
 @Route("train/:trainID")
-public class TrainView extends Div {
+public class TrainView extends Div implements BeforeEnterObserver {
+
+    private String trainID;
 
     public TrainView(StationService stationService) {
 
@@ -26,7 +30,9 @@ public class TrainView extends Div {
             grid.addColumn("depTime").setAutoWidth(true).setHeader("departure time");
             grid.addColumn("arrTime").setAutoWidth(true).setHeader("arrival time");
             grid.setHeightFull();
-            grid.setItems(stationService.getStationById("27"));
+            addAttachListener(attachEvent -> {
+                grid.setItems(stationService.getStationsByTrainId(trainID));
+            });
             grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
             add(grid);
 
@@ -37,4 +43,8 @@ public class TrainView extends Div {
     }
 
 
+    @Override
+    public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
+            trainID = beforeEnterEvent.getRouteParameters().get("trainID").get();
+    }
 }

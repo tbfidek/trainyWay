@@ -4,11 +4,16 @@ import com.example.application.data.entity.Train;
 import com.example.application.data.service.TrainRepository;
 import com.example.application.data.service.TrainService;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.Uses;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.grid.contextmenu.GridContextMenu;
 import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import org.springframework.data.domain.PageRequest;
@@ -31,6 +36,7 @@ public class HomeView extends VerticalLayout {
         this.trainRepository = trainRepository;
         addClassNames("home-view");
         add(grid);
+        Dialog dialog = new Dialog();
         getElement().getStyle().set("height", "100%");
         grid.setHeight("100%");
         grid.addColumn("trainName").setAutoWidth(true).setHeader("train");
@@ -42,7 +48,12 @@ public class HomeView extends VerticalLayout {
         grid.setItems(query -> trainService.list(
                         PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)))
                 .stream());
+        GridContextMenu<Train> menu = grid.addContextMenu();
+        menu.addItem("Review", event -> {
+            dialog.open();
+        });
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
+
         // train page redirect
         grid.asSingleSelect().addValueChangeListener(event -> {
             if (event.getValue() != null) {
@@ -52,5 +63,33 @@ public class HomeView extends VerticalLayout {
             }
         });
 
+        dialog.setHeaderTitle("Review your journey!");
+
+        VerticalLayout dialogLayout = createDialogLayout();
+        dialog.add(dialogLayout);
+
+        Button reviewButton = new Button("Review", e -> dialog.close());
+        Button cancelButton = new Button("Cancel", e -> dialog.close());
+        dialog.getFooter().add(cancelButton);
+        dialog.getFooter().add(reviewButton);
+
+        add(dialog);
+
     }
+
+    private static VerticalLayout createDialogLayout() {
+
+        TextField firstNameField = new TextField("Stars");
+        TextField lastNameField = new TextField("Message");
+
+        VerticalLayout dialogLayout = new VerticalLayout(firstNameField,
+                lastNameField);
+        dialogLayout.setPadding(false);
+        dialogLayout.setSpacing(false);
+        dialogLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
+        dialogLayout.getStyle().set("width", "18rem").set("max-width", "100%");
+
+        return dialogLayout;
+    }
+
 }

@@ -10,12 +10,14 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.theme.lumo.LumoUtility;
 
 
 @CssImport("../frontend/styles/views/auth/login-view.css")
@@ -33,25 +35,38 @@ public class LoginView extends Div {
             setId("login-view");
             var username = new TextField("username");
             var password = new PasswordField("password");
+
+            Button login = new Button("Login", buttonClickEvent -> {
+                try {
+                    authService.authenticate(username.getValue(), password.getValue());
+                    UI.getCurrent().navigate("home");
+                } catch (AuthService.AuthException e) {
+                    Notification.show("Wrong credentials");
+                }
+            });
+            login.addClassNames(LumoUtility.Margin.Bottom.SMALL);
+
+            Button signup = new Button("Signup", buttonClickEvent -> {
+                //authService.authenticate(username.getValue(), password.getValue());
+                UI.getCurrent().navigate("signup");
+            });
+            signup.addClassNames(LumoUtility.Margin.Bottom.SMALL);
+
+            Button forgot = new Button("Forgot password?", buttonClickEvent -> setPopupLayout());
+
+            HorizontalLayout buttons = new HorizontalLayout();
+            //buttons.addClassNames(LumoUtility.Padding.Top.LARGE);
+
+            buttons.add(login, signup);
+
             add(
                     //        save.addClickShortcut(Key.ENTER);
 
                     new H1("Welcomee"),
                     username,
                     password,
-                    new Button("Login", buttonClickEvent -> {
-                        try {
-                            authService.authenticate(username.getValue(), password.getValue());
-                            UI.getCurrent().navigate("home");
-                        } catch (AuthService.AuthException e) {
-                            Notification.show("Wrong credentials");
-                        }
-                    }),
-                    new Button("Signup", buttonClickEvent -> {
-                        //authService.authenticate(username.getValue(), password.getValue());
-                        UI.getCurrent().navigate("signup");
-                    }),
-                    new Button("Forgot password?", buttonClickEvent -> setPopupLayout())
+                    buttons,
+                    forgot
             );
 
         }
