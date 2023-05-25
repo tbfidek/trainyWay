@@ -6,8 +6,6 @@ import jakarta.persistence.*;
 public abstract class AbstractEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "idgenerator")
-    @SequenceGenerator(name = "idgenerator", initialValue = 1, allocationSize = 1)
     private Long id;
 
     public Long getId() {

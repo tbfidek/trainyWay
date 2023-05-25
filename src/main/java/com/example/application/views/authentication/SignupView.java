@@ -29,7 +29,7 @@ public class SignupView extends Div {
                 UI.getCurrent().getPage().executeJs("document.location = '/home';");
             } else {
             add(
-                    new H1("Welcomee"),
+                    new H1("Welcome"),
                     username,
                     email,
                     password,

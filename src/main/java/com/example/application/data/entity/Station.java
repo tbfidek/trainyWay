@@ -1,14 +1,12 @@
 package com.example.application.data.entity;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.ForeignKey;
 import jakarta.persistence.Table;
-import org.springframework.data.annotation.Reference;
+
 
 @Entity
 @Table(name="stations")
 public class Station extends AbstractEntity {
-
 
     private String trainID;
 

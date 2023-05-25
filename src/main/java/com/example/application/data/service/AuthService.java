@@ -20,7 +20,7 @@ public class AuthService {
 
     }
 
-    //SEPARA EXCEPTII IN PACKAGE SEPARAT;
+    //separate class for exceptions;
     public class AuthException extends Exception {
     }
 
@@ -38,9 +38,6 @@ public class AuthService {
 
     public AuthService(UserRepository userRepository) {
         this.userRepository = userRepository;
-        //userRepository.save(new User("t2", "p2", Role.USER));
-        //userRepository.save(new User("freaks","test@yahoo.com", "freaks", Role.DISPATCHER));
-
     }
 
     public void register(String username, String email, String password, String confirmPassword) throws UserAlreadyExistsException, PasswordNotEqualException, BlankFieldsException {
@@ -74,9 +71,8 @@ public class AuthService {
     }
 
     private void createRoutes(Role role) {
-        getAuthorizedRoutes(role).forEach(route ->
-                RouteConfiguration.forSessionScope().setRoute(
-                        route.route, route.view, Dashboard.class));
+        getAuthorizedRoutes(role).forEach(route -> RouteConfiguration.forSessionScope().setRoute(
+                route.route, route.view, Dashboard.class));
     }
 
     public List<AuthorizedRoute> getAuthorizedRoutes(Role role) {
@@ -85,10 +81,11 @@ public class AuthService {
         if (role.equals(Role.USER)) {
             routes.add(new AuthorizedRoute("home", "Home", HomeView.class));
             routes.add(new AuthorizedRoute("ticket", "Ticket", TicketView.class));
+
+
         } else if (role.equals(Role.DISPATCHER)) {
             routes.add(new AuthorizedRoute("admin", "Admin", AdminView.class));
             routes.add(new AuthorizedRoute("home", "Home", HomeView.class));
-            routes.add(new AuthorizedRoute("ticket", "Ticket", TicketView.class));
 
         }
         return routes;

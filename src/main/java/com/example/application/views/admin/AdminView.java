@@ -1,7 +1,6 @@
 package com.example.application.views.admin;
 import com.example.application.data.entity.Train;
 import com.example.application.data.service.TrainService;
-import com.example.application.data.service.UserRepository;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -21,8 +20,6 @@ import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
@@ -32,12 +29,7 @@ import java.util.Optional;
 @Uses(Icon.class)
 public class AdminView extends Div {
     private final Grid<Train> grid = new Grid<>(Train.class, false);
-    private TextField trainName;
-    private TextField depStation;
-    private TextField depTime;
-    private TextField arrStation;
-    private TextField arrTime;
-    private TextField delay;
+    private TextField trainName, depStation, depTime, arrStation, arrTime, delay;
 
     private final Button cancel = new Button("Cancel");
     private final Button save = new Button("Save");
@@ -47,12 +39,12 @@ public class AdminView extends Div {
     private Train train;
 
     private final TrainService trainService;
-    private final UserRepository userRepository;
 
-    public AdminView(TrainService trainService, UserRepository userRepository) {
+
+    public AdminView(TrainService trainService) {
 
         this.trainService = trainService;
-        this.userRepository = userRepository;
+
         addClassNames("admin-view");
         // Create UI
         SplitLayout splitLayout = new SplitLayout();
