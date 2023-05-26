@@ -39,6 +39,7 @@ import com.vaadin.flow.theme.lumo.LumoUtility.Padding;
 import com.vaadin.flow.theme.lumo.LumoUtility.Position;
 import com.vaadin.flow.theme.lumo.LumoUtility.TextColor;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
@@ -268,7 +269,11 @@ public class TicketView extends Div {
                 n.setPosition(Notification.Position.BOTTOM_START);
                 n.addThemeVariants(NotificationVariant.LUMO_CONTRAST);
                 Thread inputThread = new Thread(() -> {
-                    emailService.sendTicketDetails("maroan0107@yahoo.com", ticketDetails);
+                    try {
+                        emailService.sendTicketDetails("maroan0107@yahoo.com", ticketDetails);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
                 });
                 inputThread.start();
             }

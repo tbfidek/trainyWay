@@ -47,7 +47,6 @@ public class LoginView extends Div {
             login.addClassNames(LumoUtility.Margin.Bottom.SMALL);
 
             Button signup = new Button("Signup", buttonClickEvent -> {
-                //authService.authenticate(username.getValue(), password.getValue());
                 UI.getCurrent().navigate("signup");
             });
             signup.addClassNames(LumoUtility.Margin.Bottom.SMALL);
@@ -55,14 +54,10 @@ public class LoginView extends Div {
             Button forgot = new Button("Forgot password?", buttonClickEvent -> setPopupLayout());
 
             HorizontalLayout buttons = new HorizontalLayout();
-            //buttons.addClassNames(LumoUtility.Padding.Top.LARGE);
-
             buttons.add(login, signup);
 
             add(
-                    //        save.addClickShortcut(Key.ENTER);
-
-                    new H1("Welcomee"),
+                    new H1("Welcome"),
                     username,
                     password,
                     buttons,

@@ -257,7 +257,7 @@
   "Frontend/generated/jar-resources/virtualListConnector.js"
  ],
  "frontendHashes": {
-  "styles/views/auth/login-view.css": "2d079601c2e5c831d39e14237e57c73fa812b6d0a11acd3df92b50a56e5e9a8b",
+  "styles/views/auth/login-view.css": "21e6b0d903da76d3508fe3c1950486fa714a6cd7c28965c877889ee89a49c75a",
   "styles/views/auth/signup-view.css": "01e3e24be5b757c143641687b119eda7b926e66282fa7b86e586100e7efc9f03",
   "comboBoxConnector.js": "1d004c3dae9c76f8bcc68678abe1b8f7bdc8b456f5c9c4c7f190df8ed25d66cd",
   "contextMenuConnector.js": "25a200f8086461635ddd92316ebeb5a868294c8650a190efbae120edb1088f4f",
@@ -284,7 +284,7 @@
   "trainSched": "{\n  \"lumoImports\" : [ \"typography\", \"color\", \"spacing\", \"badge\", \"utility\" ]\n}"
  },
  "entryScripts": [
-  "VAADIN/build/indexhtml-e855a48a.js"
+  "VAADIN/build/indexhtml-f404c537.js"
  ],
  "webComponents": [],
  "packageJsonHash": "e7f31c1be23da66c9632b284173867bf6f66fbbcedd9c79737ea06f38923e25c"

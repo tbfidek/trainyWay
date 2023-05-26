@@ -2,12 +2,11 @@
     display: flex;
     justify-content: center;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     padding: 20%;
-    width: 150px;
-    height: 150px;
+    /*background-color: #7f3f49;*/
+    color: white;
 }
-
 :host {
     display: block;
     padding: var(--lumo-space-m) var(--lumo-space-l);
