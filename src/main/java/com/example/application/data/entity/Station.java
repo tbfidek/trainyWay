@@ -2,6 +2,9 @@ package com.example.application.data.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.TimeZoneColumn;
+
+import java.sql.Time;
 
 
 @Entity
@@ -12,9 +15,9 @@ public class Station extends AbstractEntity {
 
     private String stationName;
 
-    private String arrTime;
-
-    private String depTime;
+    private Time arrTime;
+    
+    private Time depTime;
 
     public String getTrainID() {
         return trainID;
@@ -32,19 +35,19 @@ public class Station extends AbstractEntity {
         this.stationName = stationName;
     }
 
-    public String getArrTime() {
+    public Time getArrTime() {
         return arrTime;
     }
 
-    public void setArrTime(String arrTime) {
+    public void setArrTime(Time arrTime) {
         this.arrTime = arrTime;
     }
 
-    public String getDepTime() {
+    public Time getDepTime() {
         return depTime;
     }
 
-    public void setDepTime(String depTime) {
+    public void setDepTime(Time depTime) {
         this.depTime = depTime;
     }
 }

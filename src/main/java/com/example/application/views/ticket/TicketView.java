@@ -38,6 +38,7 @@ import com.vaadin.flow.theme.lumo.LumoUtility.MaxWidth;
 import com.vaadin.flow.theme.lumo.LumoUtility.Padding;
 import com.vaadin.flow.theme.lumo.LumoUtility.Position;
 import com.vaadin.flow.theme.lumo.LumoUtility.TextColor;
+import jakarta.mail.MessagingException;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -95,7 +96,7 @@ public class TicketView extends Div {
         this.authService = authService;
         this.ticketService = ticketService;
         this.stationService = stationService;
-
+        trains.clear();
         for(Train t : trainService.getAll()){
             trains.add(t.getTrainName() + " [" + t.getDepStation() + " -> " + t.getArrStation() + "]");
         }
@@ -219,18 +220,27 @@ public class TicketView extends Div {
         //trainSelect.addValueChangeListener(e -> {wagonNumber.setVisible(true); seatNumber.setVisible(true);});
         trainSelect.addValueChangeListener(e -> {datePicker.setVisible(true); updateStations(trainSelect.getValue());});
         datePicker.addValueChangeListener(e -> {routeDep.setVisible(true); routeArr.setVisible(true);});
-        routeDep.addValueChangeListener(e -> routeArr.setEnabled(true));
+        routeDep.addValueChangeListener(e -> {
+            routeArr.setEnabled(true);
+            updateArrStations(trainSelect.getValue(), routeDep.getValue());
+        });
         routeArr.addValueChangeListener(e -> {
             updateTicketDetails(trainSelect.getValue(), routeDep.getValue(), routeArr.getValue(), wagonNumber.getValue(), seatNumber.getValue(), ticketPrice.getText());
-            wagonNumber.setVisible(true); seatNumber.setVisible(true); updatePrice(ticketPrice, Integer.valueOf(routeArr.getValue()));});
+            wagonNumber.setVisible(true); seatNumber.setVisible(true); updatePrice(ticketPrice, 4);});
         seatNumber.addValueChangeListener(e -> {
 
-            ticketPrice.setVisible(true); updatePrice(ticketPrice, Integer.valueOf(routeArr.getValue()));
+            ticketPrice.setVisible(true); updatePrice(ticketPrice, 4);
             updateTicketDetails(trainSelect.getValue(), routeDep.getValue(), routeArr.getValue(), wagonNumber.getValue(), seatNumber.getValue(), ticketPrice.getText());
         });
 
         shippingDetails.add(header, trainSelect, datePicker, routeSelectionSection, subSection, ticketPrice);
         return shippingDetails;
+    }
+
+    private void updateArrStations(String trainID, String depID){
+        Optional<Train> t = trainService.get(trainID.split(" ")[0]);
+        Optional<Station> s = stationService.get(depID.split(" ")[0]);
+        toStations.clear();
     }
 
     private void updateStations(String id){
@@ -239,7 +249,7 @@ public class TicketView extends Div {
         fromStations.clear();
         for(Station s : stationService.getStationsByTrainId(t.get().getId().toString())){
             fromStations.add(s.getStationName() + " [" + s.getArrTime() + "]");
-       }
+        }
         routeDep.setItems(fromStations);
         routeArr.setItems(fromStations);
     }
@@ -257,7 +267,7 @@ public class TicketView extends Div {
         pay.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
         pay.addClickListener(event -> {
             if(trainSelect.isInvalid() || routeArr.isInvalid() || routeDep.isInvalid() || wagonNumber.isInvalid() || seatNumber.isInvalid() || datePicker.isInvalid() ||
-            trainSelect.isEmpty() || routeArr.isEmpty() || routeDep.isEmpty() || wagonNumber.isEmpty() || seatNumber.isEmpty() || datePicker.isEmpty()){
+                    trainSelect.isEmpty() || routeArr.isEmpty() || routeDep.isEmpty() || wagonNumber.isEmpty() || seatNumber.isEmpty() || datePicker.isEmpty()){
                 Notification n = Notification.show("All fields must be filled!");
                 n.setDuration(4000);
                 n.setPosition(Notification.Position.BOTTOM_START);
@@ -272,6 +282,8 @@ public class TicketView extends Div {
                     try {
                         emailService.sendTicketDetails("maroan0107@yahoo.com", ticketDetails);
                     } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    } catch (MessagingException e) {
                         throw new RuntimeException(e);
                     }
                 });

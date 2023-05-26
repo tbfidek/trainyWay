@@ -1,6 +1,7 @@
 package com.example.application.data.service;
 
 import com.example.application.data.entity.Station;
+import com.example.application.data.entity.Train;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -20,6 +21,10 @@ public class StationService {
 
     public Optional<Station> get(Long id) {
         return repository.findById(id);
+    }
+
+    public Optional<Station> get(String stationName){
+        return repository.findByStationName(stationName);
     }
 
     public List<Station> getAll() { return repository.findAll(); }
