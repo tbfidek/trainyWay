@@ -2,16 +2,35 @@ package com.example.application.data.entity;
 
 import jakarta.persistence.*;
 
+import java.sql.Time;
+
 @Entity
 @Table(name = "trains")
 public class Train extends AbstractEntity{
-    private String trainName;
-    private String depStation;
-    private String depTime;
-    private String arrStation;
-    private String arrTime;
-    private String delay;
 
+    @Column(name="train_name")
+    private String trainName;
+    @Column(name="departure_station")
+    private String depStation;
+    @Column(name="departure_time")
+    private Integer depTime;
+    @Column(name="arrival_station")
+    private String arrStation;
+    @Column(name="arrival_time")
+    private Integer arrTime;
+
+    @Column(name="seats")
+    private Integer seats;
+    @Column(name="delay")
+    private Integer delay;
+
+    public Integer getSeats() {
+        return seats;
+    }
+
+    public void setSeats(Integer seats) {
+        this.seats = seats;
+    }
 
     public String getTrainName() {
         return trainName;
@@ -29,11 +48,11 @@ public class Train extends AbstractEntity{
         this.depStation = depStation;
     }
 
-    public String getDepTime() {
+    public Integer getDepTime() {
         return depTime;
     }
 
-    public void setDepTime(String depTime) {
+    public void setDepTime(Integer depTime) {
         this.depTime = depTime;
     }
 
@@ -45,19 +64,19 @@ public class Train extends AbstractEntity{
         this.arrStation = arrStation;
     }
 
-    public String getArrTime() {
+    public Integer getArrTime() {
         return arrTime;
     }
 
-    public void setArrTime(String arrTime) {
+    public void setArrTime(Integer arrTime) {
         this.arrTime = arrTime;
     }
 
-    public String getDelay() {
+    public Integer getDelay() {
         return delay;
     }
 
-    public void setDelay(String delay) {
+    public void setDelay(Integer delay) {
         this.delay = delay;
     }
 }

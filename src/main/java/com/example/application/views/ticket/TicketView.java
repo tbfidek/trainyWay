@@ -239,8 +239,12 @@ public class TicketView extends Div {
 
     private void updateArrStations(String trainID, String depID){
         Optional<Train> t = trainService.get(trainID.split(" ")[0]);
-        Optional<Station> s = stationService.get(depID.split(" ")[0]);
+        Optional<Station> st = stationService.get(depID.split(" ")[0]);
         toStations.clear();
+        for(Station s : stationService.getAfterStations(t.get().getId(), st.get().getStationName())){
+            toStations.add(s.getStationName() + " [" + s.getArrTime() + "]");
+        }
+        routeArr.setItems(toStations);
     }
 
     private void updateStations(String id){
@@ -248,10 +252,9 @@ public class TicketView extends Div {
         Optional<Train> t = trainService.get(id.split(" ")[0]);
         fromStations.clear();
         for(Station s : stationService.getStationsByTrainId(t.get().getId().toString())){
-            fromStations.add(s.getStationName() + " [" + s.getArrTime() + "]");
+            fromStations.add(s.getStationName() + " [" + s.getDepTime() + "]");
         }
         routeDep.setItems(fromStations);
-        routeArr.setItems(fromStations);
     }
 
     private Footer createFooter() {

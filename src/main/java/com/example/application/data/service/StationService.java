@@ -51,4 +51,6 @@ public class StationService {
     public List<Station> getStationsByTrainId(String id){
         return repository.getStationsByTrainId(id);
     }
+
+    public List<Station>  getAfterStations(Long id, String stationName) { return repository.getAfterStations(id, stationName); }
 }
