@@ -1,5 +1,6 @@
 package com.example.application.data.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import org.hibernate.annotations.TimeZoneColumn;
@@ -11,19 +12,34 @@ import java.sql.Time;
 @Table(name="stations")
 public class Station extends AbstractEntity {
 
-    private String trainID;
+    @Column(name="train_id")
+    private Integer trainID;
 
+    @Column(name="station_name")
     private String stationName;
 
-    private Time arrTime;
-    
-    private Time depTime;
+    @Column(name="arrival_time")
+    private Integer arrTime;
 
-    public String getTrainID() {
+    @Column(name="departure_time")
+    private Integer depTime;
+
+    @Column(name="stationary_time")
+    private Integer stationary_time;
+
+    public Integer getStationary_time() {
+        return stationary_time;
+    }
+
+    public void setStationary_time(Integer stationary_time) {
+        this.stationary_time = stationary_time;
+    }
+
+    public Integer getTrainID() {
         return trainID;
     }
 
-    public void setTrainID(String trainID) {
+    public void setTrainID(Integer trainID) {
         this.trainID = trainID;
     }
 
@@ -35,19 +51,19 @@ public class Station extends AbstractEntity {
         this.stationName = stationName;
     }
 
-    public Time getArrTime() {
+    public Integer getArrTime() {
         return arrTime;
     }
 
-    public void setArrTime(Time arrTime) {
+    public void setArrTime(Integer arrTime) {
         this.arrTime = arrTime;
     }
 
-    public Time getDepTime() {
+    public Integer getDepTime() {
         return depTime;
     }
 
-    public void setDepTime(Time depTime) {
+    public void setDepTime(Integer depTime) {
         this.depTime = depTime;
     }
 }

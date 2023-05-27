@@ -4,9 +4,9 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
+import java.sql.Date;
 import java.sql.Time;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Entity
 @Table(name = "tickets")
@@ -19,12 +19,12 @@ public class Ticket extends AbstractEntity {
     private Long b_trainID;
 
     @Column(name="date")
-    private LocalDateTime c_date;
+    private Date c_date;
 
-    @Column(name="dep_station")
+    @Column(name="departure_station")
     private String dep_station;
 
-    @Column(name="arr_station")
+    @Column(name="arrival_station")
     private String arr_station;
 
     @Column(name="wagon_number")
@@ -82,11 +82,11 @@ public class Ticket extends AbstractEntity {
         this.b_trainID = trainID;
     }
 
-    public LocalDateTime getDate() {
+    public Date getDate() {
         return c_date;
     }
 
-    public void setDate(LocalDateTime date) {
+    public void setDate(Date date) {
         this.c_date = date;
     }
 }
