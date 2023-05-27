@@ -1,4 +1,6 @@
 package com.example.application.data.service;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -47,25 +49,28 @@ public class EmailService {
 //        javaMailSender.send(message);
 //    }
 
-    public void sendTicketDetails(String recipientEmail, String... details) throws IOException {
-        // Create a new PDF document
+    public void sendTicketDetails(String recipientEmail, String... details) throws IOException, MessagingException {
+          MimeMessage message = javaMailSender.createMimeMessage();
+          MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+         //Create a new PDF document
         PDDocument document = new PDDocument();
         PDPage page = new PDPage(PDRectangle.A4);
         document.addPage(page);
 
         // Prepare the ticket details content
         StringBuilder content = new StringBuilder();
-        content.append("Details about your ticket:\n")
-                .append("Train: ").append(details[0]).append("\n")
-                .append("From: ").append(details[1]).append("\n")
-                .append("To: ").append(details[2]).append("\n")
-                .append("Wagon: ").append(details[3]).append("\n")
-                .append("Seat: ").append(details[4]).append("\n")
+        content.append("Details about your ticket:<br>")
+                .append("Train: ").append(details[0]).append("<br>")
+                .append("From: ").append(details[1]).append("<br>")
+                .append("To: ").append(details[2]).append("<br>")
+                .append("Wagon: ").append(details[3]).append("<br>")
+                .append("Seat: ").append(details[4]).append("<br>")
                 .append("Price: ").append(details[5]);
 
         // Add the ticket details content to the PDF
         PDPageContentStream contentStream = new PDPageContentStream(document, page);
-        contentStream.setFont(PDType1Font.HELVETICA_BOLD, 12);
+        contentStream.setFont(PDType1Font.TIMES_ROMAN, 12);
         contentStream.beginText();
         contentStream.newLineAtOffset(25, 700);
         contentStream.showText(content.toString());
@@ -79,18 +84,17 @@ public class EmailService {
         byte[] pdfBytes = baos.toByteArray();
 
         // Create a SimpleMailMessage
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(recipientEmail);
-        message.setFrom("trainyway@firemail.cc");
-        message.setSubject("Ticket details");
-        message.setText("Please find attached the ticket details in PDF format.");
+        //SimpleMailMessage message = new SimpleMailMessage();
+        helper.setTo(recipientEmail);
+        helper.setFrom("trainyway@firemail.cc");
+        helper.setSubject("Ticket details");
+        helper.setText("Please find attached the ticket details in PDF format.");
 
         // Attach the PDF document to the email
         ByteArrayResource resource = new ByteArrayResource(pdfBytes);
-        message.
-        message.addAttachment("ticket_details.pdf", resource);
+        helper.addAttachment("ticket_details.pdf", resource);
 
-        // Send the email
+//        // Send the email
         javaMailSender.send(message);
     }
 }
