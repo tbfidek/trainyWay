@@ -3,18 +3,21 @@ package com.example.application.views.home;
 import com.example.application.data.entity.Station;
 import com.example.application.data.entity.User;
 import com.example.application.data.service.StationService;
+import com.example.application.views.dashboard.TrainDashboard;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
 import java.util.List;
-import static com.example.application.utils.Utils.formatTime;
+import static com.example.application.utils.Utils.*;
 
-@Route("train/:trainID")
+@Route(value="train/:trainID", layout= TrainDashboard.class)
 public class TrainView extends Div implements BeforeEnterObserver {
 
     private String trainID;
@@ -31,7 +34,9 @@ public class TrainView extends Div implements BeforeEnterObserver {
             grid.setSizeFull();
             grid.addColumn(station -> formatTime(station.getArrTime())).setAutoWidth(true).setHeader("arrival time");
             grid.addColumn("stationName").setAutoWidth(true).setHeader("station");
+            grid.addColumn(station -> setBreak(station.getStationaryTime())).setAutoWidth(true).setHeader("break");
             grid.addColumn(station -> formatTime(station.getDepTime())).setAutoWidth(true).setHeader("departure time");
+            grid.addColumn(p -> updateDelay()).setAutoWidth(true).setHeader("delay");
             grid.setHeightFull();
 
             addAttachListener(attachEvent -> {
@@ -47,6 +52,9 @@ public class TrainView extends Div implements BeforeEnterObserver {
 
     }
 
+    public String updateDelay(){
+    return null;
+    }
     @Override
     public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
         trainID = beforeEnterEvent.getRouteParameters().get("trainID").get();

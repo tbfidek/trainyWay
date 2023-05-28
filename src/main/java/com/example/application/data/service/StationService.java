@@ -53,4 +53,6 @@ public class StationService {
     }
 
     public List<Station>  getAfterStations(Long id, String stationName) { return repository.getAfterStations(id, stationName); }
+    public List<String> stationList(){ return repository.stationList(); }
+
 }

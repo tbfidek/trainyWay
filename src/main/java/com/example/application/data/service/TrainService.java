@@ -47,5 +47,7 @@ public class TrainService {
     public int count() {
         return (int) repository.count();
     }
-
+    public List<Train> trainList(String from, String to) {
+        return repository.trainList(from ,to);
+    }
 }

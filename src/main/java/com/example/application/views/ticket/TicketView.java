@@ -154,7 +154,6 @@ public class TicketView extends Div {
         Section shippingDetails = new Section();
         shippingDetails.addClassNames(Display.FLEX, FlexDirection.COLUMN, Margin.Bottom.XLARGE, Margin.Top.MEDIUM);
 
-
         H3 header = new H3("Train ticket details");
         header.addClassNames(Margin.Bottom.MEDIUM, Margin.Top.SMALL, FontSize.XXLARGE);
 
@@ -166,28 +165,29 @@ public class TicketView extends Div {
         datePicker.setRequiredIndicatorVisible(true);
         datePicker.addClassNames(Margin.Bottom.SMALL);
 
-        trainSelect = new ComboBox<>("Train");
-        trainSelect.setRequiredIndicatorVisible(true);
-        trainSelect.setVisible(false);
-        trainSelect.addClassNames(Margin.Bottom.SMALL);
-
         Div routeSelectionSection = new Div();
         routeSelectionSection.addClassNames(Display.FLEX, FlexWrap.WRAP, Gap.MEDIUM);
 
         routeDep = new ComboBox<>("From");
         routeDep.setRequiredIndicatorVisible(true);
         routeDep.setItems(fromStations);
-        routeDep.setVisible(false);
+        routeDep.setVisible(true);
+        routeDep.setEnabled(false);
         routeDep.addClassNames(Margin.Bottom.SMALL);
 
         routeArr = new ComboBox<>("To");
         routeArr.setRequiredIndicatorVisible(true);
-        routeArr.setItems("1", "2", "3", "4", "5", "6");
-        routeArr.setVisible(false);
+        routeArr.setVisible(true);
         routeArr.setEnabled(false);
         routeArr.addClassNames(Margin.Bottom.SMALL);
 
         routeSelectionSection.add(routeDep, routeArr);
+
+        trainSelect = new ComboBox<>("Train");
+        trainSelect.setRequiredIndicatorVisible(true);
+        trainSelect.setVisible(true);
+        trainSelect.setEnabled(false);
+        trainSelect.addClassNames(Margin.Bottom.SMALL);
 
         Div subSection = new Div();
         subSection.addClassNames(Display.FLEX, FlexWrap.WRAP, Gap.MEDIUM);
@@ -195,13 +195,14 @@ public class TicketView extends Div {
         wagonNumber = new ComboBox<>("Wagon");
         wagonNumber.setRequiredIndicatorVisible(true);
         wagonNumber.setItems("1", "2", "3", "4", "5", "6");
-        wagonNumber.setVisible(false);
+        wagonNumber.setVisible(true);
+        wagonNumber.setEnabled(false);
         wagonNumber.addClassNames(Margin.Bottom.SMALL);
 
         seatNumber = new ComboBox<>("Seat");
         seatNumber.setRequiredIndicatorVisible(true);
         seatNumber.setItems(seatNumbers);
-        seatNumber.setVisible(false);
+        seatNumber.setVisible(true);
         seatNumber.setEnabled(false);
         seatNumber.addClassNames(Margin.Bottom.SMALL);
 
@@ -211,38 +212,46 @@ public class TicketView extends Div {
         ticketPrice.setVisible(false);
         ticketPrice.addClassNames(Margin.Top.MEDIUM, FontSize.MEDIUM, TextColor.SECONDARY);
 
-        wagonNumber.addValueChangeListener(e -> seatNumber.setEnabled(true));
+//EVENTS
         datePicker.addValueChangeListener(e -> {
-            trainSelect.setEnabled(true);
-            trainSelect.setVisible(true);
-            updateTrains(datePicker.getValue());
+            updateStations();
+            routeDep.setEnabled(true);
         });
-        //trainSelect.addValueChangeListener(e -> {wagonNumber.setVisible(true); seatNumber.setVisible(true);});
-        trainSelect.addValueChangeListener(e -> {
-            updateStations(trainSelect.getValue());
-            routeDep.setVisible(true); routeArr.setVisible(true);
-        });
+
+
         routeDep.addValueChangeListener(e -> {
-            routeArr.setEnabled(true);
-            if(routeDep.getValue() != null)
-                updateArrStations(trainSelect.getValue(), routeDep.getValue());
+          routeArr.setEnabled(true);
         });
+
         routeArr.addValueChangeListener(e -> {
-            updateTicketDetails(trainSelect.getValue(), routeDep.getValue(), routeArr.getValue(), wagonNumber.getValue(), seatNumber.getValue(), ticketPrice.getText(),user.getUsername(), user.getEmail(), review_code);
-            wagonNumber.setVisible(true); seatNumber.setVisible(true); updatePrice(ticketPrice, 4);});
+
+            if(routeDep.getValue().equals(routeArr.getValue())){
+                routeArr.setValue("");
+            }
+            else{
+                trainSelect.setEnabled(true);
+                updateTrains(datePicker.getValue());
+            }
+
+            //updateTicketDetails(trainSelect.getValue(), routeDep.getValue(), routeArr.getValue(), wagonNumber.getValue(), seatNumber.getValue(), ticketPrice.getText(),user.getUsername(), user.getEmail(), review_code);
+
+        });
+
+        trainSelect.addValueChangeListener(e -> {
+            //updateStations(trainSelect.getValue());
+        });
+
         wagonNumber.addValueChangeListener(e -> {
-           seatNumber.setValue("");
         });
 
         seatNumber.addValueChangeListener(e -> {
-
             Optional<Train> t = trainService.get(trainSelect.getValue().split(" ")[0]);
             float price = ticketRepository.getTicketPrice(t.get().getId(), routeDep.getValue().split(" \\[")[0], routeArr.getValue().split(" \\[")[0], Integer.valueOf(wagonNumber.getValue()));
             ticketPrice.setVisible(true); updatePrice(ticketPrice, price);
             updateTicketDetails(trainSelect.getValue(), routeDep.getValue(), routeArr.getValue(), wagonNumber.getValue(), seatNumber.getValue(), ticketPrice.getText(), user.getUsername(), user.getEmail(), review_code);
         });
 
-        shippingDetails.add(header, datePicker, trainSelect, routeSelectionSection, subSection, ticketPrice);
+        shippingDetails.add(header, datePicker, routeSelectionSection, trainSelect, subSection, ticketPrice);
         return shippingDetails;
     }
 
@@ -256,17 +265,15 @@ public class TicketView extends Div {
         routeArr.setItems(toStations);
     }
 
-    private void updateStations(String id){
-        //System.out.println(id.split(" ")[0]);
-        if(id != null) {
-            Optional<Train> t = trainService.get(id.split(" ")[0]);
+    private void updateStations(){
             fromStations.clear();
-            for (Station s : stationService.getStationsByTrainId(t.get().getId().toString())) {
-                fromStations.add(s.getStationName() + " [" + Utils.formatTime(s.getDepTime()) + "]");
+            toStations.clear();
+            for(String st : stationService.stationList()){
+                fromStations.add(st);
+                toStations.add(st);
             }
-            fromStations.remove(fromStations.size() - 1);
             routeDep.setItems(fromStations);
-        }
+            routeArr.setItems(toStations);
     }
 
     private Footer createFooter() {
@@ -340,7 +347,8 @@ public class TicketView extends Div {
 
         nowCalendar.setTime(nowDate);
         selectedDateCalendar.setTime(selectedDate);
-        for(Train t : trainService.getAll()){
+        for(Train t : trainService.trainList(routeDep.getValue(), routeArr.getValue())){
+
             if(nowCalendar.get(Calendar.DAY_OF_MONTH) == selectedDateCalendar.get(Calendar.DAY_OF_MONTH)) {
                 Calendar trainArrivalCalendar = Calendar.getInstance();
                 trainArrivalCalendar.setTimeInMillis(t.getArrTime()*1000);

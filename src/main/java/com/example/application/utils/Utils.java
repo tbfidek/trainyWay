@@ -16,4 +16,17 @@ public class Utils {
         }
         return formattedTime;
     }
+    public static String setBreak(Integer stationaryTime) {
+        String breakTime = "";
+        if(stationaryTime != 0) {
+            if (stationaryTime < 60) {
+                breakTime = stationaryTime + " seconds";
+            } else if (stationaryTime == 60) {
+                breakTime = "1 minute";
+            } else {
+                breakTime = stationaryTime / 60 + " minutes";
+            }
+        }
+        return breakTime;
+    }
 }

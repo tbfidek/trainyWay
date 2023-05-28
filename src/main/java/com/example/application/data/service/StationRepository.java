@@ -19,5 +19,7 @@ public interface StationRepository extends
 
     @Query(value = "select * from \"getstationsafter\"(?1, ?2)", nativeQuery = true)
     List<Station> getAfterStations(Long id, String stationName);
+    @Query(value = "select * from \"search_from_to\"()", nativeQuery = true)
+    List<String> stationList();
 }
 

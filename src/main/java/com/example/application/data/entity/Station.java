@@ -27,11 +27,11 @@ public class Station extends AbstractEntity {
     @Column(name="stationary_time")
     private Integer stationary_time;
 
-    public Integer getStationary_time() {
+    public Integer getStationaryTime() {
         return stationary_time;
     }
 
-    public void setStationary_time(Integer stationary_time) {
+    public void setStationaryTime(Integer stationary_time) {
         this.stationary_time = stationary_time;
     }
 
