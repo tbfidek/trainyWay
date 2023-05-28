@@ -11,14 +11,8 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
-
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Locale;
+import static com.example.application.utils.Utils.formatTime;
 
 @Route("train/:trainID")
 public class TrainView extends Div implements BeforeEnterObserver {
@@ -50,16 +44,7 @@ public class TrainView extends Div implements BeforeEnterObserver {
         } else {
             UI.getCurrent().getPage().executeJs("document.location = '/';");
         }
-    }
 
-    private String formatTime(Integer epochSeconds) {
-        String formattedTime = "";
-        if(epochSeconds != 0){
-            LocalDateTime dateTime = LocalDateTime.ofInstant(Instant.ofEpochSecond(epochSeconds), ZoneOffset.UTC);
-            formattedTime = dateTime.format(DateTimeFormatter.ofPattern("HH:mm", new Locale("ro_RO")));
-
-        }
-        return formattedTime;
     }
 
     @Override

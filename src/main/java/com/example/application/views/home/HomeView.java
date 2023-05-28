@@ -4,34 +4,26 @@ import com.example.application.data.entity.Train;
 import com.example.application.data.service.TrainRepository;
 import com.example.application.data.service.TrainService;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.Uses;
-import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
-import com.vaadin.flow.component.grid.contextmenu.GridContextMenu;
+import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
-import org.springframework.data.domain.PageRequest;
-
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.util.Locale;
+import java.text.Normalizer;
+import java.util.List;
+import static com.example.application.utils.Utils.formatTime;
 
 @PageTitle("Home")
 @Uses(Icon.class)
 public class HomeView extends VerticalLayout {
-
-    private final String SAMPLEPERSON_ID = "trainID";
     private final String SAMPLEPERSON_EDIT_ROUTE_TEMPLATE = "train/%s";
-
     private final Grid<Train> grid = new Grid<>(Train.class, false);
+    private final TextField searchField = new TextField();
     private Train train;
     private final TrainService trainService;
     private final TrainRepository trainRepository;
@@ -41,8 +33,8 @@ public class HomeView extends VerticalLayout {
         this.trainService = trainService;
         this.trainRepository = trainRepository;
         addClassNames("home-view");
-        add(grid);
-        Dialog dialog = new Dialog();
+        add(searchField, grid);
+
         getElement().getStyle().set("height", "100%");
         grid.setHeight("100%");
         grid.addColumn("trainName").setAutoWidth(true).setHeader("train");
@@ -51,13 +43,27 @@ public class HomeView extends VerticalLayout {
         grid.addColumn("arrStation").setAutoWidth(true).setHeader("arrival station");
         grid.addColumn(station -> formatTime(station.getArrTime())).setAutoWidth(true).setHeader("arrival time");
         grid.addColumn("delay").setAutoWidth(true).setHeader("delay");
-        grid.setItems(query -> trainService.list(
-                        PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)))
-                .stream());
-        GridContextMenu<Train> menu = grid.addContextMenu();
-        menu.addItem("Review", event -> {
-            dialog.open();
+
+
+        List<Train> trainList = trainService.getAll();
+        GridListDataView<Train> gridView = grid.setItems(trainList);
+
+        searchField.setWidth("50%");
+        searchField.setPlaceholder("Search");
+        searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
+        searchField.setValueChangeMode(ValueChangeMode.EAGER);
+        searchField.addValueChangeListener(e -> gridView.refreshAll());
+
+        gridView.addFilter(train -> {
+            String searchTerm = searchField.getValue().trim();
+            if (searchTerm.isEmpty())
+                return true;
+            boolean matchesName = replaceSearch(train.getTrainName()).contains(searchTerm.toLowerCase());
+            boolean matchesArr = replaceSearch(train.getArrStation()).contains(searchTerm.toLowerCase());
+            boolean matchesDep = replaceSearch(train.getDepStation()).contains(searchTerm.toLowerCase());
+            return matchesName || matchesArr || matchesDep;
         });
+
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
 
         // train page redirect
@@ -69,43 +75,12 @@ public class HomeView extends VerticalLayout {
             }
         });
 
-        dialog.setHeaderTitle("Review your journey!");
-
-        VerticalLayout dialogLayout = createDialogLayout();
-        dialog.add(dialogLayout);
-
-        Button reviewButton = new Button("Review", e -> dialog.close());
-        Button cancelButton = new Button("Cancel", e -> dialog.close());
-        dialog.getFooter().add(cancelButton);
-        dialog.getFooter().add(reviewButton);
-
-        add(dialog);
-
     }
-
-    private String formatTime(Integer epochSeconds) {
-        String formattedTime = "";
-        if(epochSeconds != 0){
-            LocalDateTime dateTime = LocalDateTime.ofInstant(Instant.ofEpochSecond(epochSeconds), ZoneOffset.UTC);
-            formattedTime = dateTime.format(DateTimeFormatter.ofPattern("HH:mm", new Locale("ro_RO")));
-
-        }
-        return formattedTime;
+    private String replaceSearch(String search){
+        String convertedString =
+                Normalizer
+                        .normalize(search, Normalizer.Form.NFD)
+                        .replaceAll("[^\\p{ASCII}]", "");
+        return convertedString.toLowerCase();
     }
-
-    private static VerticalLayout createDialogLayout() {
-
-        TextField firstNameField = new TextField("Stars");
-        TextField lastNameField = new TextField("Message");
-
-        VerticalLayout dialogLayout = new VerticalLayout(firstNameField,
-                lastNameField);
-        dialogLayout.setPadding(false);
-        dialogLayout.setSpacing(false);
-        dialogLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
-        dialogLayout.getStyle().set("width", "18rem").set("max-width", "100%");
-
-        return dialogLayout;
-    }
-
 }
