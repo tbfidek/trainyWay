@@ -77,6 +77,7 @@ public class HomeView extends VerticalLayout {
 
     }
     private String replaceSearch(String search){
+
         String convertedString =
                 Normalizer
                         .normalize(search, Normalizer.Form.NFD)

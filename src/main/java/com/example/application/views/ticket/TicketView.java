@@ -5,6 +5,7 @@ import com.example.application.data.entity.Ticket;
 import com.example.application.data.entity.Train;
 import com.example.application.data.entity.User;
 import com.example.application.data.service.*;
+import com.example.application.utils.Utils;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -21,9 +22,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.theme.lumo.LumoUtility.AlignItems;
-import com.vaadin.flow.theme.lumo.LumoUtility.Background;
-import com.vaadin.flow.theme.lumo.LumoUtility.BorderRadius;
-import com.vaadin.flow.theme.lumo.LumoUtility.BoxSizing;
 import com.vaadin.flow.theme.lumo.LumoUtility.Display;
 import com.vaadin.flow.theme.lumo.LumoUtility.Flex;
 import com.vaadin.flow.theme.lumo.LumoUtility.FlexDirection;
@@ -32,31 +30,32 @@ import com.vaadin.flow.theme.lumo.LumoUtility.FontSize;
 import com.vaadin.flow.theme.lumo.LumoUtility.Gap;
 import com.vaadin.flow.theme.lumo.LumoUtility.Height;
 import com.vaadin.flow.theme.lumo.LumoUtility.JustifyContent;
-import com.vaadin.flow.theme.lumo.LumoUtility.ListStyleType;
 import com.vaadin.flow.theme.lumo.LumoUtility.Margin;
 import com.vaadin.flow.theme.lumo.LumoUtility.MaxWidth;
 import com.vaadin.flow.theme.lumo.LumoUtility.Padding;
-import com.vaadin.flow.theme.lumo.LumoUtility.Position;
 import com.vaadin.flow.theme.lumo.LumoUtility.TextColor;
 import jakarta.mail.MessagingException;
+import org.apache.commons.lang3.RandomStringUtils;
 
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
+import java.sql.Date;
 
 @PageTitle("trainyWay | buy tickets")
 public class TicketView extends Div {
 
     private final TrainService trainService;
 
+    private TicketRepository ticketRepository;
     private final TicketService ticketService;
     private final EmailService emailService;
     private final AuthService authService;
 
     private final StationService stationService;
 
-    private String[] ticketDetails = new String[6];
+    private String[] ticketDetails = new String[10];
 
     private static final List<String> trains = new LinkedList<>();
     private List<String> fromStations = new LinkedList<>();
@@ -79,6 +78,11 @@ public class TicketView extends Div {
 
     private DatePicker datePicker;
 
+    TextField name;
+    EmailField email;
+
+    String review_code;
+
     static {
 
         for(int i = 1; i <= 60; ++i ){
@@ -90,16 +94,14 @@ public class TicketView extends Div {
 
     }
 
-    public TicketView(TrainService trainService, EmailService emailService, AuthService authService, TicketService ticketService, StationService stationService) {
+    public TicketView(TrainService trainService, EmailService emailService, AuthService authService, TicketService ticketService, StationService stationService, TicketRepository ticketRepository) {
         this.trainService = trainService;
         this.emailService = emailService;
         this.authService = authService;
         this.ticketService = ticketService;
         this.stationService = stationService;
+        this.ticketRepository = ticketRepository;
         trains.clear();
-        for(Train t : trainService.getAll()){
-            trains.add(t.getTrainName() + " [" + t.getDepStation() + " -> " + t.getArrStation() + "]");
-        }
         addClassNames("checkout-form-view");
         addClassNames(Display.FLEX, FlexDirection.COLUMN, Height.FULL);
 
@@ -109,6 +111,7 @@ public class TicketView extends Div {
 
         content.add(createCheckoutForm());
         add(content);
+        review_code = RandomStringUtils.randomAlphanumeric(8);
     }
 
     private Component createCheckoutForm() {
@@ -131,27 +134,23 @@ public class TicketView extends Div {
         H3 header = new H3("Personal details");
         header.addClassNames(Margin.Bottom.MEDIUM, Margin.Top.SMALL, FontSize.XXLARGE);
 
-        TextField name = new TextField("Name");
+        name = new TextField("Name");
         name.setRequiredIndicatorVisible(true);
         name.setPattern("[\\p{L} \\-]+");
         name.addClassNames(Margin.Bottom.SMALL);
         name.setValue(currentUser.getUsername());
 
-        EmailField email = new EmailField("Email address");
+        email = new EmailField("Email address");
         email.setRequiredIndicatorVisible(true);
         email.addClassNames(Margin.Bottom.SMALL);
         email.setValue(currentUser.getEmail());
 
-        TextField phone = new TextField("Phone number");
-        phone.setRequiredIndicatorVisible(true);
-        phone.setPattern("[\\d \\-\\+]+");
-        phone.addClassNames(Margin.Bottom.SMALL);
-
-        personalDetails.add(header, name, email, phone);
+        personalDetails.add(header, name, email);
         return personalDetails;
     }
 
     private Section createShippingAddressSection() {
+        User user = VaadinSession.getCurrent().getAttribute(User.class);
         Section shippingDetails = new Section();
         shippingDetails.addClassNames(Display.FLEX, FlexDirection.COLUMN, Margin.Bottom.XLARGE, Margin.Top.MEDIUM);
 
@@ -159,19 +158,18 @@ public class TicketView extends Div {
         H3 header = new H3("Train ticket details");
         header.addClassNames(Margin.Bottom.MEDIUM, Margin.Top.SMALL, FontSize.XXLARGE);
 
-        trainSelect = new ComboBox<>("Train");
-        trainSelect.setRequiredIndicatorVisible(true);
-        trainSelect.addClassNames(Margin.Bottom.SMALL);
-
         datePicker = new DatePicker("Departure date");
         LocalDate now = LocalDate.now(ZoneId.systemDefault());
         datePicker.setMin(now);
-        datePicker.setMax(now.plusDays(30));
-        datePicker.setHelperText("Must be within 30 days from today");
+        datePicker.setMax(now.plusDays(7));
+        datePicker.setHelperText("Must be within 7 days from today");
         datePicker.setRequiredIndicatorVisible(true);
-        datePicker.setVisible(false);
         datePicker.addClassNames(Margin.Bottom.SMALL);
 
+        trainSelect = new ComboBox<>("Train");
+        trainSelect.setRequiredIndicatorVisible(true);
+        trainSelect.setVisible(false);
+        trainSelect.addClassNames(Margin.Bottom.SMALL);
 
         Div routeSelectionSection = new Div();
         routeSelectionSection.addClassNames(Display.FLEX, FlexWrap.WRAP, Gap.MEDIUM);
@@ -209,52 +207,66 @@ public class TicketView extends Div {
 
         subSection.add(wagonNumber, seatNumber);
 
-        trainSelect.setItems(trains);
-
-        float price = 9.5f * 4;
-        ticketPrice = new Paragraph("Total: " + price + " lei.");
+        ticketPrice = new Paragraph("");
         ticketPrice.setVisible(false);
         ticketPrice.addClassNames(Margin.Top.MEDIUM, FontSize.MEDIUM, TextColor.SECONDARY);
 
         wagonNumber.addValueChangeListener(e -> seatNumber.setEnabled(true));
+        datePicker.addValueChangeListener(e -> {
+            trainSelect.setEnabled(true);
+            trainSelect.setVisible(true);
+            updateTrains(datePicker.getValue());
+        });
         //trainSelect.addValueChangeListener(e -> {wagonNumber.setVisible(true); seatNumber.setVisible(true);});
-        trainSelect.addValueChangeListener(e -> {datePicker.setVisible(true); updateStations(trainSelect.getValue());});
-        datePicker.addValueChangeListener(e -> {routeDep.setVisible(true); routeArr.setVisible(true);});
+        trainSelect.addValueChangeListener(e -> {
+            updateStations(trainSelect.getValue());
+            routeDep.setVisible(true); routeArr.setVisible(true);
+        });
         routeDep.addValueChangeListener(e -> {
             routeArr.setEnabled(true);
-            updateArrStations(trainSelect.getValue(), routeDep.getValue());
+            if(routeDep.getValue() != null)
+                updateArrStations(trainSelect.getValue(), routeDep.getValue());
         });
         routeArr.addValueChangeListener(e -> {
-            updateTicketDetails(trainSelect.getValue(), routeDep.getValue(), routeArr.getValue(), wagonNumber.getValue(), seatNumber.getValue(), ticketPrice.getText());
+            updateTicketDetails(trainSelect.getValue(), routeDep.getValue(), routeArr.getValue(), wagonNumber.getValue(), seatNumber.getValue(), ticketPrice.getText(),user.getUsername(), user.getEmail(), review_code);
             wagonNumber.setVisible(true); seatNumber.setVisible(true); updatePrice(ticketPrice, 4);});
-        seatNumber.addValueChangeListener(e -> {
-
-            ticketPrice.setVisible(true); updatePrice(ticketPrice, 4);
-            updateTicketDetails(trainSelect.getValue(), routeDep.getValue(), routeArr.getValue(), wagonNumber.getValue(), seatNumber.getValue(), ticketPrice.getText());
+        wagonNumber.addValueChangeListener(e -> {
+           seatNumber.setValue("");
         });
 
-        shippingDetails.add(header, trainSelect, datePicker, routeSelectionSection, subSection, ticketPrice);
+        seatNumber.addValueChangeListener(e -> {
+
+            Optional<Train> t = trainService.get(trainSelect.getValue().split(" ")[0]);
+            float price = ticketRepository.getTicketPrice(t.get().getId(), routeDep.getValue().split(" \\[")[0], routeArr.getValue().split(" \\[")[0], Integer.valueOf(wagonNumber.getValue()));
+            ticketPrice.setVisible(true); updatePrice(ticketPrice, price);
+            updateTicketDetails(trainSelect.getValue(), routeDep.getValue(), routeArr.getValue(), wagonNumber.getValue(), seatNumber.getValue(), ticketPrice.getText(), user.getUsername(), user.getEmail(), review_code);
+        });
+
+        shippingDetails.add(header, datePicker, trainSelect, routeSelectionSection, subSection, ticketPrice);
         return shippingDetails;
     }
 
     private void updateArrStations(String trainID, String depID){
         Optional<Train> t = trainService.get(trainID.split(" ")[0]);
-        Optional<Station> st = stationService.get(depID.split(" ")[0]);
+        //Optional<Station> st = stationService.get(depID.split(" \\[")[0]);
         toStations.clear();
-        for(Station s : stationService.getAfterStations(t.get().getId(), st.get().getStationName())){
-            toStations.add(s.getStationName() + " [" + s.getArrTime() + "]");
+        for(Station s : stationService.getAfterStations(t.get().getId(), depID.split(" \\[")[0])){
+            toStations.add(s.getStationName() + " [" + Utils.formatTime(s.getArrTime()) + "]");
         }
         routeArr.setItems(toStations);
     }
 
     private void updateStations(String id){
         //System.out.println(id.split(" ")[0]);
-        Optional<Train> t = trainService.get(id.split(" ")[0]);
-        fromStations.clear();
-        for(Station s : stationService.getStationsByTrainId(t.get().getId().toString())){
-            fromStations.add(s.getStationName() + " [" + s.getDepTime() + "]");
+        if(id != null) {
+            Optional<Train> t = trainService.get(id.split(" ")[0]);
+            fromStations.clear();
+            for (Station s : stationService.getStationsByTrainId(t.get().getId().toString())) {
+                fromStations.add(s.getStationName() + " [" + Utils.formatTime(s.getDepTime()) + "]");
+            }
+            fromStations.remove(fromStations.size() - 1);
+            routeDep.setItems(fromStations);
         }
-        routeDep.setItems(fromStations);
     }
 
     private Footer createFooter() {
@@ -278,12 +290,14 @@ public class TicketView extends Div {
             }else {
                 UI.getCurrent().navigate("home");
                 Notification n = Notification.show("Successfully bought the ticket, details will be sent to your email!");
+                Optional<Train> t = trainService.get(trainSelect.getValue().split(" ")[0]);
+                ticketRepository.save(new Ticket(user.getId(), t.get().getId(), Date.valueOf(datePicker.getValue()), routeDep.getValue().split(" \\[")[0], routeArr.getValue().split(" \\[")[0], wagonNumber.getValue(), seatNumber.getValue(), review_code));
                 n.setDuration(4000);
                 n.setPosition(Notification.Position.BOTTOM_START);
                 n.addThemeVariants(NotificationVariant.LUMO_CONTRAST);
                 Thread inputThread = new Thread(() -> {
                     try {
-                        emailService.sendTicketDetails("maroan0107@yahoo.com", ticketDetails);
+                        emailService.sendTicketDetails(email.getValue(), ticketDetails);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     } catch (MessagingException e) {
@@ -305,10 +319,44 @@ public class TicketView extends Div {
         ticketDetails[3] = details[3];
         ticketDetails[4] = details[4];
         ticketDetails[5] = details[5].replace("Total: ", "");
+        ticketDetails[6] = details[6];
+        ticketDetails[7] = details[7];
+        ticketDetails[8] = details[8];
     }
 
 
-    public void updatePrice(Paragraph p, int value){
-        p.setText("Total " + 9.5 * value + " lei.");
+    public void updatePrice(Paragraph p, float value){
+        p.setText("Total " + value + " lei.");
+    }
+
+    public void updateTrains(LocalDate date){
+        trains.clear();
+        //data de azi
+        Date nowDate = new Date(System.currentTimeMillis());
+        Date selectedDate = Date.valueOf(date);
+
+        Calendar nowCalendar = Calendar.getInstance();
+        Calendar selectedDateCalendar = Calendar.getInstance();
+
+        nowCalendar.setTime(nowDate);
+        selectedDateCalendar.setTime(selectedDate);
+        for(Train t : trainService.getAll()){
+            if(nowCalendar.get(Calendar.DAY_OF_MONTH) == selectedDateCalendar.get(Calendar.DAY_OF_MONTH)) {
+                Calendar trainArrivalCalendar = Calendar.getInstance();
+                trainArrivalCalendar.setTimeInMillis(t.getArrTime()*1000);
+
+                int trainH = trainArrivalCalendar.get(Calendar.HOUR_OF_DAY);
+                int nowH = nowCalendar.get(Calendar.HOUR_OF_DAY);
+                int trainM = trainArrivalCalendar.get(Calendar.MINUTE);
+                int nowM = nowCalendar.get(Calendar.MINUTE);
+
+                if((trainH > nowH || (trainH == nowH && trainM > nowM))){
+                    trains.add(t.getTrainName() + " [" + t.getDepStation() + " -> " + t.getArrStation() + "]");
+                }
+            } else {
+                trains.add(t.getTrainName() + " [" + t.getDepStation() + " -> " + t.getArrStation() + "]");
+            }
+        }
+        trainSelect.setItems(trains);
     }
 }

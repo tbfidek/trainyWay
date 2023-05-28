@@ -1,6 +1,8 @@
 package com.example.application.data.service;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import org.apache.pdfbox.pdmodel.font.PDFont;
+import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -18,6 +20,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
 import java.io.ByteArrayOutputStream;
 
+import java.io.File;
 import java.io.IOException;
 
 
@@ -45,22 +48,33 @@ public class EmailService {
         PDPage page = new PDPage(PDRectangle.A4);
         document.addPage(page);
 
-        // Prepare the ticket details content
-        StringBuilder content = new StringBuilder();
-        content.append("Details about your ticket:<br>")
-                .append("Train: ").append(details[0]).append("<br>")
-                .append("From: ").append(details[1]).append("<br>")
-                .append("To: ").append(details[2]).append("<br>")
-                .append("Wagon: ").append(details[3]).append("<br>")
-                .append("Seat: ").append(details[4]).append("<br>")
-                .append("Price: ").append(details[5]);
-
         // Add the ticket details content to the PDF
         PDPageContentStream contentStream = new PDPageContentStream(document, page);
-        contentStream.setFont(PDType1Font.TIMES_ROMAN, 12);
+        PDFont font = PDType0Font.load(document, new File("src/main/resources/Roboto-Thin.ttf"));
+        contentStream.setFont(font, 12);
         contentStream.beginText();
-        contentStream.newLineAtOffset(25, 700);
-        contentStream.showText(content.toString());
+        contentStream.setLeading(14.5f);
+        contentStream.newLineAtOffset(25, 725);
+        contentStream.showText("Details about your ticket: ");
+        contentStream.newLine();
+        contentStream.newLine();
+        contentStream.showText("Name: " + details[6]);
+        contentStream.newLine();
+        contentStream.showText("Email: " + details[7]);
+        contentStream.newLine();
+        contentStream.showText("Train: "+ details[0]);
+        contentStream.newLine();
+        contentStream.showText("From: "+details[1]);
+        contentStream.newLine();
+        contentStream.showText("To: "+ details[2]);
+        contentStream.newLine();
+        contentStream.showText("Wagon: "+details[3]);
+        contentStream.newLine();
+        contentStream.showText("Seat: "+details[4]);
+        contentStream.newLine();
+        contentStream.showText("Price: "+ details[5].replace("Total ", ""));
+        contentStream.newLine();
+        contentStream.showText("Review code: "+ details[8]);
         contentStream.endText();
         contentStream.close();
 

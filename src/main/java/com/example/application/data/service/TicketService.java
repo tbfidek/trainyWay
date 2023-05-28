@@ -25,7 +25,7 @@ public class TicketService {
         return repository.findById(id);
     }
 
-    public List<Ticket> test() { return repository.test();}
+    public float getTicketPrice(Long trainID, String start_station, String end_station, Integer wagon_type) { return repository.getTicketPrice(trainID, start_station, end_station, wagon_type);}
 
     public List<Ticket> getAll() { return repository.findAll(); }
 

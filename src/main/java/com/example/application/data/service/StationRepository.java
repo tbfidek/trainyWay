@@ -17,7 +17,7 @@ public interface StationRepository extends
 
     Optional<Station> findByStationName(String stationName);
 
-    @Query(value = "select * from \"getafterstations\"(?1, ?2)", nativeQuery = true)
+    @Query(value = "select * from \"getstationsafter\"(?1, ?2)", nativeQuery = true)
     List<Station> getAfterStations(Long id, String stationName);
 }
 
