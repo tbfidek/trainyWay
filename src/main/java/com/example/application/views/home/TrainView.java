@@ -12,39 +12,58 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Locale;
+
 @Route("train/:trainID")
 public class TrainView extends Div implements BeforeEnterObserver {
 
     private String trainID;
+    private final StationService stationService;
 
     public TrainView(StationService stationService) {
+        this.stationService = stationService;
 
         if (VaadinSession.getCurrent().getAttribute(User.class) != null) {
-            addClassNames("train-view");
-            addClassNames("admin-view");
-            // Create UI
+            addClassNames("train-view", "admin-view");
             getElement().getStyle().set("height", "100%");
+
             Grid<Station> grid = new Grid<>(Station.class, false);
             grid.setSizeFull();
+            grid.addColumn(station -> formatTime(station.getArrTime())).setAutoWidth(true).setHeader("arrival time");
             grid.addColumn("stationName").setAutoWidth(true).setHeader("station");
-            grid.addColumn("depTime").setAutoWidth(true).setHeader("departure time");
-            grid.addColumn("arrTime").setAutoWidth(true).setHeader("arrival time");
+            grid.addColumn(station -> formatTime(station.getDepTime())).setAutoWidth(true).setHeader("departure time");
             grid.setHeightFull();
+
             addAttachListener(attachEvent -> {
-                grid.setItems(stationService.getStationsByTrainId(trainID));
+                List<Station> stations = stationService.getStationsByTrainId(trainID);
+                grid.setItems(stations);
             });
+
             grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
             add(grid);
-
         } else {
             UI.getCurrent().getPage().executeJs("document.location = '/';");
-
         }
     }
 
+    private String formatTime(Integer epochSeconds) {
+        String formattedTime = "";
+        if(epochSeconds != 0){
+            LocalDateTime dateTime = LocalDateTime.ofInstant(Instant.ofEpochSecond(epochSeconds), ZoneOffset.UTC);
+            formattedTime = dateTime.format(DateTimeFormatter.ofPattern("HH:mm", new Locale("ro_RO")));
+
+        }
+        return formattedTime;
+    }
 
     @Override
     public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
-            trainID = beforeEnterEvent.getRouteParameters().get("trainID").get();
+        trainID = beforeEnterEvent.getRouteParameters().get("trainID").get();
     }
 }

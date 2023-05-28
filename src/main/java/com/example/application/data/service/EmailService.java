@@ -36,19 +36,6 @@ public class EmailService {
         message.setText(content);
         javaMailSender.send(message);
     }
-
-//    public void sendTicketDetails(String recipientEmail, String... details){
-//        String subject = "Ticket details";
-//        String content = "Details about your ticket:\nTrain: " + details[0] + "\nFrom: " + details[1] + "\nTo: " + details[2] +
-//                "\n Wagon: " + details[3] + "\n Seat: " + details[4] + "\nPrice: " + details[5];
-//        SimpleMailMessage message = new SimpleMailMessage();
-//        message.setTo(recipientEmail);
-//        message.setFrom("trainyway@firemail.cc");
-//        message.setSubject(subject);
-//        message.setText(content);
-//        javaMailSender.send(message);
-//    }
-
     public void sendTicketDetails(String recipientEmail, String... details) throws IOException, MessagingException {
           MimeMessage message = javaMailSender.createMimeMessage();
           MimeMessageHelper helper = new MimeMessageHelper(message, true);
@@ -82,9 +69,6 @@ public class EmailService {
         document.save(baos);
         document.close();
         byte[] pdfBytes = baos.toByteArray();
-
-        // Create a SimpleMailMessage
-        //SimpleMailMessage message = new SimpleMailMessage();
         helper.setTo(recipientEmail);
         helper.setFrom("trainyway@firemail.cc");
         helper.setSubject("Ticket details");

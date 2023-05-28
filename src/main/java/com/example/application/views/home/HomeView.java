@@ -18,6 +18,12 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import org.springframework.data.domain.PageRequest;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+
 @PageTitle("Home")
 @Uses(Icon.class)
 public class HomeView extends VerticalLayout {
@@ -41,9 +47,9 @@ public class HomeView extends VerticalLayout {
         grid.setHeight("100%");
         grid.addColumn("trainName").setAutoWidth(true).setHeader("train");
         grid.addColumn("depStation").setAutoWidth(true).setHeader("departure station");
-        grid.addColumn("depTime").setAutoWidth(true).setHeader("departure time");
+        grid.addColumn(station -> formatTime(station.getDepTime())).setAutoWidth(true).setHeader("departure time");
         grid.addColumn("arrStation").setAutoWidth(true).setHeader("arrival station");
-        grid.addColumn("arrTime").setAutoWidth(true).setHeader("arrival time");
+        grid.addColumn(station -> formatTime(station.getArrTime())).setAutoWidth(true).setHeader("arrival time");
         grid.addColumn("delay").setAutoWidth(true).setHeader("delay");
         grid.setItems(query -> trainService.list(
                         PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)))
@@ -75,6 +81,16 @@ public class HomeView extends VerticalLayout {
 
         add(dialog);
 
+    }
+
+    private String formatTime(Integer epochSeconds) {
+        String formattedTime = "";
+        if(epochSeconds != 0){
+            LocalDateTime dateTime = LocalDateTime.ofInstant(Instant.ofEpochSecond(epochSeconds), ZoneOffset.UTC);
+            formattedTime = dateTime.format(DateTimeFormatter.ofPattern("HH:mm", new Locale("ro_RO")));
+
+        }
+        return formattedTime;
     }
 
     private static VerticalLayout createDialogLayout() {
