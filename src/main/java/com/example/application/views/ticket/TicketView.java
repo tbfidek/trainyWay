@@ -232,16 +232,14 @@ public class TicketView extends Div {
                 trainSelect.setEnabled(true);
                 updateTrains(datePicker.getValue());
             }
-
-            //updateTicketDetails(trainSelect.getValue(), routeDep.getValue(), routeArr.getValue(), wagonNumber.getValue(), seatNumber.getValue(), ticketPrice.getText(),user.getUsername(), user.getEmail(), review_code);
-
         });
 
         trainSelect.addValueChangeListener(e -> {
-            //updateStations(trainSelect.getValue());
+            wagonNumber.setEnabled(true);
         });
 
         wagonNumber.addValueChangeListener(e -> {
+            seatNumber.setEnabled(true);
         });
 
         seatNumber.addValueChangeListener(e -> {
@@ -250,21 +248,9 @@ public class TicketView extends Div {
             ticketPrice.setVisible(true); updatePrice(ticketPrice, price);
             updateTicketDetails(trainSelect.getValue(), routeDep.getValue(), routeArr.getValue(), wagonNumber.getValue(), seatNumber.getValue(), ticketPrice.getText(), user.getUsername(), user.getEmail(), review_code);
         });
-
         shippingDetails.add(header, datePicker, routeSelectionSection, trainSelect, subSection, ticketPrice);
         return shippingDetails;
     }
-
-    private void updateArrStations(String trainID, String depID){
-        Optional<Train> t = trainService.get(trainID.split(" ")[0]);
-        //Optional<Station> st = stationService.get(depID.split(" \\[")[0]);
-        toStations.clear();
-        for(Station s : stationService.getAfterStations(t.get().getId(), depID.split(" \\[")[0])){
-            toStations.add(s.getStationName() + " [" + Utils.formatTime(s.getArrTime()) + "]");
-        }
-        routeArr.setItems(toStations);
-    }
-
     private void updateStations(){
             fromStations.clear();
             toStations.clear();
@@ -275,7 +261,6 @@ public class TicketView extends Div {
             routeDep.setItems(fromStations);
             routeArr.setItems(toStations);
     }
-
     private Footer createFooter() {
         User user = VaadinSession.getCurrent().getAttribute(User.class);
         Footer footer = new Footer();
@@ -314,7 +299,6 @@ public class TicketView extends Div {
                 inputThread.start();
             }
         });
-
         footer.add(cancel, pay);
         return footer;
     }
@@ -330,12 +314,9 @@ public class TicketView extends Div {
         ticketDetails[7] = details[7];
         ticketDetails[8] = details[8];
     }
-
-
     public void updatePrice(Paragraph p, float value){
         p.setText("Total " + value + " lei.");
     }
-
     public void updateTrains(LocalDate date){
         trains.clear();
         //data de azi

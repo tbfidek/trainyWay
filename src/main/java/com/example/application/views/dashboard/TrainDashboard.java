@@ -89,58 +89,6 @@ public class TrainDashboard extends AppLayout {
         return dialogLayout;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     private void createDrawer() {
         User user = VaadinSession.getCurrent().getAttribute(User.class);
 
