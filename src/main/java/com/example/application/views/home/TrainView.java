@@ -1,23 +1,21 @@
 package com.example.application.views.home;
 
 import com.example.application.data.entity.Station;
-import com.example.application.data.entity.Train;
 import com.example.application.data.entity.User;
 import com.example.application.data.service.StationService;
+import com.example.application.data.service.TrainService;
 import com.example.application.views.dashboard.TrainDashboard;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Label;
-import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
 
 import java.sql.Date;
-import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
@@ -29,13 +27,18 @@ public class TrainView extends Div implements BeforeEnterObserver {
 
     private String trainID;
     private final StationService stationService;
+    private final TrainService trainService;
 
-    public TrainView(StationService stationService) {
+    public TrainView(StationService stationService, TrainService trainService) {
         this.stationService = stationService;
+        this.trainService = trainService;
 
         if (VaadinSession.getCurrent().getAttribute(User.class) != null) {
             addClassNames("train-view", "admin-view");
             getElement().getStyle().set("height", "100%");
+
+            H1 train = new H1("");
+
 
             Grid<Station> grid = new Grid<>(Station.class, false);
             grid.setSizeFull();
@@ -49,10 +52,12 @@ public class TrainView extends Div implements BeforeEnterObserver {
             addAttachListener(attachEvent -> {
                 List<Station> stations = stationService.getStationsByTrainId(trainID);
                 grid.setItems(stations);
+                train.setText(trainService.get(Long.valueOf(trainID)).get().getTrainName());
+                train.addClassNames("text-l", "m-m");
             });
 
             grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
-            add(grid);
+            add(train, grid);
         } else {
             UI.getCurrent().getPage().executeJs("document.location = '/';");
         }
