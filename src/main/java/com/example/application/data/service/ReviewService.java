@@ -23,7 +23,9 @@ public class ReviewService {
         return repository.findById(id);
     }
 
-    public List<Review> getAll() { return repository.findAll(); }
+    public List<Review> getAll() {
+        return repository.findAll();
+    }
 
     public Review update(Review entity) {
         return repository.save(entity);
@@ -44,7 +46,15 @@ public class ReviewService {
     public int count() {
         return (int) repository.count();
     }
-    public boolean verifyCode(String code, Long id, Long uid){ return repository.verifyCode(code, id, uid); }
-    public float ratingScore(Long trainId) { return repository.ratingScore(trainId); }
+
+    public boolean verifyCode(String code, Long id, Long uid) {
+        return repository.verifyCode(code, id, uid);
+    }
+
+    public String ratingScore(Long trainId) {
+        if (repository.ratingScore(trainId).equals(".00")) {
+            return "";
+        } else return repository.ratingScore(trainId);
+    }
 
 }

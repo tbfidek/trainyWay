@@ -10,6 +10,6 @@ public interface ReviewRepository extends
         JpaSpecificationExecutor<Review> {
     @Query(value = "select * from \"review_code_verification\"(?1, ?2, ?3)", nativeQuery = true)
     boolean verifyCode(String code, Long id, Long uid);
-    @Query(value = "select avg(rating) from reviews where train_id = ?1", nativeQuery = true)
-    float ratingScore(Long trainId);
+    @Query(value = "select to_char(coalesce(avg(rating), 0), 'FM999999999.00') from reviews where train_id = ?1", nativeQuery = true)
+    String ratingScore(Long trainId);
 }

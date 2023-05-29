@@ -1,6 +1,7 @@
 package com.example.application.views.home;
 
 import com.example.application.data.entity.Train;
+import com.example.application.data.service.ReviewService;
 import com.example.application.data.service.TrainRepository;
 import com.example.application.data.service.TrainService;
 import com.vaadin.flow.component.UI;
@@ -14,6 +15,9 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
+
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.text.Normalizer;
 import java.util.List;
 import static com.example.application.utils.Utils.formatTime;
@@ -27,14 +31,15 @@ public class HomeView extends VerticalLayout {
     private Train train;
     private final TrainService trainService;
     private final TrainRepository trainRepository;
+    private final ReviewService reviewService;
 
-    public HomeView(TrainService trainService, TrainRepository trainRepository) {
+    public HomeView(TrainService trainService, TrainRepository trainRepository, ReviewService reviewService) {
 
         this.trainService = trainService;
         this.trainRepository = trainRepository;
+        this.reviewService = reviewService;
         addClassNames("home-view");
         add(searchField, grid);
-
         getElement().getStyle().set("height", "100%");
         grid.setHeight("100%");
         grid.addColumn("trainName").setAutoWidth(true).setHeader("train");
@@ -43,6 +48,7 @@ public class HomeView extends VerticalLayout {
         grid.addColumn("arrStation").setAutoWidth(true).setHeader("arrival station");
         grid.addColumn(station -> formatTime(station.getArrTime())).setAutoWidth(true).setHeader("arrival time");
         grid.addColumn("delay").setAutoWidth(true).setHeader("delay");
+        grid.addColumn(p -> reviewService.ratingScore(p.getId())).setAutoWidth(true).setHeader("rating");
 
 
         List<Train> trainList = trainService.getAll();
