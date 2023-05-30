@@ -80,7 +80,6 @@ public class TicketView extends Div {
 
     TextField name;
     EmailField email;
-
     String review_code;
 
     static {

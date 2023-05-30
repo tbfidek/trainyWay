@@ -5,6 +5,7 @@ import com.example.application.data.entity.User;
 import com.example.application.views.admin.AdminView;
 import com.example.application.views.home.HomeView;
 import com.example.application.views.dashboard.Dashboard;
+import com.example.application.views.home.StationView;
 import com.example.application.views.ticket.TicketView;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.router.RouteConfiguration;
@@ -81,6 +82,7 @@ public class AuthService {
         if (role.equals(Role.USER)) {
             routes.add(new AuthorizedRoute("home", "Home", HomeView.class));
             routes.add(new AuthorizedRoute("ticket", "Ticket", TicketView.class));
+            routes.add(new AuthorizedRoute("station", "Station", StationView.class));
 
 
         } else if (role.equals(Role.DISPATCHER)) {

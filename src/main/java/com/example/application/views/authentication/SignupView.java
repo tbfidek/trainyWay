@@ -15,7 +15,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
 
 @CssImport("../frontend/styles/views/auth/signup-view.css")
-@PageTitle("MersulTrenurilor | signup")
+@PageTitle("trainyWay | signup")
 @Route("signup")
 public class SignupView extends Div {
 

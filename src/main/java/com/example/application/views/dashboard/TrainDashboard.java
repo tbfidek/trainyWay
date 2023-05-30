@@ -44,8 +44,6 @@ public class TrainDashboard extends AppLayout {
     private void createHeader() {
         H1 logo = new H1("trainyWay");
         logo.addClassNames("text-l", "m-m");
-
-
         Dialog review = new Dialog();
         review.setHeaderTitle("Review your journey!");
         Button cancelButton = new Button("Cancel", e -> review.close());

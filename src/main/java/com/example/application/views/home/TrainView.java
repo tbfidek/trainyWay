@@ -14,6 +14,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
+import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
 import java.sql.Date;
@@ -28,6 +29,7 @@ import static com.example.application.utils.Utils.*;
 
 @Route(value = "train/:trainID", layout = TrainDashboard.class)
 @CssImport(value = "../frontend/styles/views/train/train-view.css")
+@PageTitle("trainyWay | home view")
 public class TrainView extends Div implements BeforeEnterObserver {
 
     private String trainID;

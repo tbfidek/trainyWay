@@ -22,7 +22,8 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 
 
 @CssImport("../frontend/styles/views/auth/login-view.css")
-@PageTitle("Login")
+@PageTitle("trainyWay | login")
+
 @Route("")
 public class LoginView extends Div {
 

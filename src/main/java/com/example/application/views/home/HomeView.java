@@ -15,12 +15,13 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
-import java.text.Normalizer;
+
 import java.util.List;
+
 import static com.example.application.utils.Utils.formatTime;
 import static com.example.application.utils.Utils.replaceSearch;
 
-@PageTitle("Home")
+@PageTitle("trainyWay | home")
 @Uses(Icon.class)
 public class HomeView extends VerticalLayout {
     private final String SAMPLEPERSON_EDIT_ROUTE_TEMPLATE = "train/%s";
@@ -32,7 +33,6 @@ public class HomeView extends VerticalLayout {
     private final ReviewService reviewService;
 
     public HomeView(TrainService trainService, TrainRepository trainRepository, ReviewService reviewService) {
-
         this.trainService = trainService;
         this.trainRepository = trainRepository;
         this.reviewService = reviewService;
@@ -60,12 +60,20 @@ public class HomeView extends VerticalLayout {
 
         gridView.addFilter(train -> {
             String searchTerm = searchField.getValue().trim();
-            if (searchTerm.isEmpty())
+            if (searchTerm.isEmpty()) {
                 return true;
+            }
             boolean matchesName = replaceSearch(train.getTrainName()).contains(searchTerm.toLowerCase());
             boolean matchesArr = replaceSearch(train.getArrStation()).contains(searchTerm.toLowerCase());
             boolean matchesDep = replaceSearch(train.getDepStation()).contains(searchTerm.toLowerCase());
+            if(!(matchesName || matchesArr || matchesDep)){
+                searchField.setHelperText("sorry, the search didn't come up with any results");
+            }
+            else {
+                searchField.setHelperText("");
+            }
             return matchesName || matchesArr || matchesDep;
+
         });
 
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
