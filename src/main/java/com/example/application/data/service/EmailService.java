@@ -1,4 +1,5 @@
 package com.example.application.data.service;
+import com.example.application.data.entity.User;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.apache.pdfbox.pdmodel.font.PDFont;
@@ -29,15 +30,23 @@ public class EmailService {
     @Autowired
     private JavaMailSender javaMailSender;
 
+    private UserRepository userRepository;
+
+    public EmailService(UserRepository userRepository){
+        this.userRepository = userRepository;
+    }
+
     public void sendTemporaryPasswordEmail(String recipientEmail) {
         String subject = "Temporary Password";
-        String content = "Your temporary password is: " + RandomStringUtils.randomAlphabetic(10);
+        String resetCode = RandomStringUtils.randomAlphabetic(10);
+        String content = "link: http://localhost:6969/resetpassword/" + resetCode;
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(recipientEmail);
         message.setFrom("trainyway@firemail.cc");
         message.setSubject(subject);
         message.setText(content);
         javaMailSender.send(message);
+        userRepository.createResetQuery(recipientEmail, resetCode);
     }
     public void sendTicketDetails(String recipientEmail, String... details) throws IOException, MessagingException {
           MimeMessage message = javaMailSender.createMimeMessage();

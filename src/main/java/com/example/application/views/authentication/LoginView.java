@@ -3,6 +3,7 @@ package com.example.application.views.authentication;
 import com.example.application.data.entity.User;
 import com.example.application.data.service.AuthService;
 import com.example.application.data.service.EmailService;
+import com.example.application.data.service.UserRepository;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
@@ -26,9 +27,11 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 public class LoginView extends Div {
 
     private final EmailService emailService;
+    private final UserRepository userRepository;
 
-    public LoginView(AuthService authService, EmailService emailService) {
+    public LoginView(AuthService authService, EmailService emailService, UserRepository userRepository) {
         this.emailService = emailService;
+        this.userRepository = userRepository;
         if (VaadinSession.getCurrent().getAttribute(User.class) != null) {
             UI.getCurrent().getPage().executeJs("document.location = '/home';");
         } else {
@@ -76,10 +79,17 @@ public class LoginView extends Div {
         Button cancelButton = new Button("Cancel", e -> dialog.close());
         Button sendButton = new Button("Send", buttonClickEvent1 -> {
             if(!emailField.isInvalid()) {
-                Notification.show("instructions will be sent to your email");
-                Thread inputThread = new Thread(() -> emailService.sendTemporaryPasswordEmail(emailField.getValue()));
-                inputThread.start();
-                dialog.close();
+
+                User u = userRepository.getByEmail(emailField.getValue().trim());
+                if(u == null){
+                    Notification.show("nu exista user cu emailu ala");
+                    dialog.close();
+                } else {
+                    Notification.show("instructions will be sent to your email");
+                    Thread inputThread = new Thread(() -> emailService.sendTemporaryPasswordEmail(emailField.getValue().trim()));
+                    inputThread.start();
+                    dialog.close();
+                }
             }
             else {
                 emailField.setErrorMessage("invalid email format");

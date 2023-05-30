@@ -18,4 +18,7 @@ public interface TrainRepository extends
     List<Train> trainList(String from, String to);
     @Query(value = "select * from \"import_csv_data2\"(?1)", nativeQuery = true)
     void uploadTrain(String file);
+
+    @Query(value = "select * from \"get_trains_to_reset\"()", nativeQuery = true)
+    void resetTrains();
 }

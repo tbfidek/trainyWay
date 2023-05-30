@@ -4,6 +4,7 @@ import com.example.application.data.entity.Train;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,6 +17,11 @@ public class TrainService {
 
     public TrainService(TrainRepository repository) {
         this.repository = repository;
+    }
+
+    @Scheduled(cron = "0 59 23 * * *")
+    public void resetTrains() {
+        repository.resetTrains();
     }
 
     public Optional<Train> get(Long id) {
