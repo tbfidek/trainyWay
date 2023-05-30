@@ -50,4 +50,5 @@ public class TrainService {
     public List<Train> trainList(String from, String to) {
         return repository.trainList(from ,to);
     }
+    public void uploadTrain(String file){ repository.uploadTrain(file);}
 }

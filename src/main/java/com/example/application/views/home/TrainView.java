@@ -1,11 +1,13 @@
 package com.example.application.views.home;
 
 import com.example.application.data.entity.Station;
+import com.example.application.data.entity.Train;
 import com.example.application.data.entity.User;
 import com.example.application.data.service.StationService;
 import com.example.application.data.service.TrainService;
 import com.example.application.views.dashboard.TrainDashboard;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
@@ -14,15 +16,18 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
-
 import java.sql.Date;
+import java.time.Duration;
+import java.time.LocalTime;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Optional;
 import java.util.TimeZone;
 
 import static com.example.application.utils.Utils.*;
 
 @Route(value = "train/:trainID", layout = TrainDashboard.class)
+@CssImport(value = "../frontend/styles/views/train/train-view.css")
 public class TrainView extends Div implements BeforeEnterObserver {
 
     private String trainID;
@@ -39,15 +44,15 @@ public class TrainView extends Div implements BeforeEnterObserver {
 
             H1 train = new H1("");
 
-
             Grid<Station> grid = new Grid<>(Station.class, false);
             grid.setSizeFull();
-            grid.addColumn(station -> formatTime(station.getArrTime())).setAutoWidth(true).setHeader("arrival time");
+            grid.addColumn(station -> formatTime(station.getDepTime() - station.getStationaryTime())).setAutoWidth(true).setHeader("arrival time");
             grid.addColumn("stationName").setAutoWidth(true).setHeader("station");
             grid.addColumn(station -> setBreak(station.getStationaryTime())).setAutoWidth(true).setHeader("break");
             grid.addColumn(station -> formatTime(station.getDepTime())).setAutoWidth(true).setHeader("departure time");
-            grid.addColumn(p -> updateTrains(p.getDepTime() - p.getStationaryTime())).setAutoWidth(true).setHeader("delay");
+            grid.addColumn(p -> updateTrains(p)).setAutoWidth(true).setHeader("delay");
             grid.setHeightFull();
+            grid.setClassNameGenerator(station -> isStationDelayed(station) ? "delayed-station" : null);
 
             addAttachListener(attachEvent -> {
                 List<Station> stations = stationService.getStationsByTrainId(trainID);
@@ -56,43 +61,64 @@ public class TrainView extends Div implements BeforeEnterObserver {
                 train.addClassNames("text-l", "m-m");
             });
 
-            grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
+            grid.addThemeVariants(GridVariant.LUMO_COLUMN_BORDERS);
             add(train, grid);
         } else {
             UI.getCurrent().getPage().executeJs("document.location = '/';");
         }
 
     }
-
-
-    public String updateTrains(long date) {
-
-        //data de azi
-        Date nowDate = new Date(System.currentTimeMillis());
-
-        Calendar nowCalendar = Calendar.getInstance();
-
-        nowCalendar.setTime(nowDate);
-
-        Calendar trainArrivalCalendar = Calendar.getInstance();
-        trainArrivalCalendar.setTimeInMillis(date * 1000);
-
-        trainArrivalCalendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-        int trainH = trainArrivalCalendar.get(Calendar.HOUR_OF_DAY);
-        int nowH = nowCalendar.get(Calendar.HOUR_OF_DAY);
-        int trainM = trainArrivalCalendar.get(Calendar.MINUTE);
-        int nowM = nowCalendar.get(Calendar.MINUTE);
-        // train hasn't arrived yet
-        if ((trainH > nowH || (trainH == nowH && trainM > nowM))) {
-            System.out.println(trainH +":" + trainM + "versus" + nowH + ":" + nowM);
-            return "delayed";
-        } else {
-            System.out.println(trainH +":" + trainM + "versus" + nowH + ":" + nowM);
-            return "not delayed";
-        }
-
+    private boolean isStationDelayed(Station station) {
+        Optional<Train> tren = trainService.get(Long.valueOf(station.getTrainID()));
+        return tren.get().getDelay() > 0;
     }
-// BORASC RFCISEDJKRFCDVDERSFIVCAKEMRJCVDFNVTHGU
+
+    public String updateTrains(Station st) {
+
+        Optional<Train> tren = trainService.get(Long.valueOf(st.getTrainID()));
+        if(tren.get().getDelay()>0) {
+            long date = st.getDepTime() - st.getStationaryTime();
+            if(date != 0){
+                Date nowDate = new Date(System.currentTimeMillis());
+
+                Calendar nowCalendar = Calendar.getInstance();
+
+                nowCalendar.setTime(nowDate);
+
+                Calendar trainArrivalCalendar = Calendar.getInstance();
+                trainArrivalCalendar.setTimeInMillis(date * 1000);
+
+                trainArrivalCalendar.setTimeZone(TimeZone.getTimeZone("GMT"));
+                int trainH = trainArrivalCalendar.get(Calendar.HOUR_OF_DAY);
+                int nowH = nowCalendar.get(Calendar.HOUR_OF_DAY);
+                int trainM = trainArrivalCalendar.get(Calendar.MINUTE);
+                int nowM = nowCalendar.get(Calendar.MINUTE);
+
+                LocalTime trainArrivalTime = LocalTime.of(trainH, trainM);
+                LocalTime currentTime = LocalTime.of(nowH, nowM);
+
+                Duration timeDifference = Duration.between(currentTime, trainArrivalTime);
+                if (timeDifference.getSeconds() / 60 > 0) {
+                    if (Math.abs(timeDifference.getSeconds() / 60) > 1000) {
+                        System.out.println("A TRECUT!");
+                        return "not delayed";
+                    } else {
+                        System.out.println("NU A TRECUT!");
+                        return tren.get().getDelay().toString() + " minutes";
+                    }
+                } else {
+                    if (Math.abs(timeDifference.getSeconds() / 60) > 1000) {
+                        return tren.get().getDelay().toString() + " minutes";
+
+                    } else {
+                        return "not delayed";
+                    }
+                }
+            }
+        }
+        return "not delayed";
+    }
+
     @Override
     public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
         trainID = beforeEnterEvent.getRouteParameters().get("trainID").get();

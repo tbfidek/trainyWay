@@ -15,12 +15,10 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
-
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
 import java.text.Normalizer;
 import java.util.List;
 import static com.example.application.utils.Utils.formatTime;
+import static com.example.application.utils.Utils.replaceSearch;
 
 @PageTitle("Home")
 @Uses(Icon.class)
@@ -82,12 +80,5 @@ public class HomeView extends VerticalLayout {
         });
 
     }
-    private String replaceSearch(String search){
 
-        String convertedString =
-                Normalizer
-                        .normalize(search, Normalizer.Form.NFD)
-                        .replaceAll("[^\\p{ASCII}]", "");
-        return convertedString.toLowerCase();
-    }
 }

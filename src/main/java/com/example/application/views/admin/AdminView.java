@@ -8,22 +8,35 @@ import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.upload.Upload;
+import com.vaadin.flow.component.upload.receivers.FileBuffer;
+import com.vaadin.flow.component.upload.receivers.FileData;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.ValidationException;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
 import java.util.Optional;
+
+import static com.example.application.utils.Utils.formatTime;
+import static com.example.application.utils.Utils.replaceSearch;
 
 @PageTitle("Admin")
 @Uses(Icon.class)
@@ -33,6 +46,7 @@ public class AdminView extends Div {
 
     private final Button cancel = new Button("Cancel");
     private final Button save = new Button("Save");
+    private final TextField searchField = new TextField();
 
     private final BeanValidationBinder<Train> binder;
 
@@ -44,25 +58,82 @@ public class AdminView extends Div {
     public AdminView(TrainService trainService) {
 
         this.trainService = trainService;
-
         addClassNames("admin-view");
-        // Create UI
-        SplitLayout splitLayout = new SplitLayout();
+        FileBuffer fileBuffer = new FileBuffer();
 
+        Upload upload = new Upload(fileBuffer);
+        upload.setAcceptedFileTypes(".csv");
+
+        upload.addSucceededListener(event -> {
+            FileData savedFileData = fileBuffer.getFileData();
+            String originalFileName = savedFileData.getFileName();
+
+            if (originalFileName.endsWith(".csv")) {
+                File destinationDirectory = new File("D:/STUDENT");
+                File destinationFile = new File(destinationDirectory, "input.csv");
+
+                savedFileData.getFile().renameTo(destinationFile);
+                InputStream fis = fileBuffer.getInputStream();
+                byte[] cfff;
+                try {
+                    cfff = new byte[fis.available()];
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                try {
+                    fis.read(cfff);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                String fileContent = new String(cfff);
+                System.out.println(fileContent);
+                try {
+                    fis.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                trainService.uploadTrain(fileContent);
+
+                System.out.printf("File saved to: %s%n", destinationFile.getAbsolutePath());
+            } else {
+                savedFileData.getFile().delete();
+                Notification.show("Only .csv files are allowed");
+            }
+        });
+        SplitLayout splitLayout = new SplitLayout();
         createGridLayout(splitLayout);
         createEditorLayout(splitLayout);
+        add(searchField, upload, splitLayout);
 
-        add(splitLayout);
+        List<Train> trainList = trainService.getAll();
+        GridListDataView<Train> gridView = grid.setItems(trainList);
+
+        searchField.setWidth("50%");
+        searchField.setPlaceholder("Search");
+        searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
+        searchField.setValueChangeMode(ValueChangeMode.EAGER);
+        searchField.addValueChangeListener(e -> gridView.refreshAll());
+
+        gridView.addFilter(train -> {
+            String searchTerm = searchField.getValue().trim();
+            if (searchTerm.isEmpty())
+                return true;
+            boolean matchesName = replaceSearch(train.getTrainName()).contains(searchTerm.toLowerCase());
+            boolean matchesArr = replaceSearch(train.getArrStation()).contains(searchTerm.toLowerCase());
+            boolean matchesDep = replaceSearch(train.getDepStation()).contains(searchTerm.toLowerCase());
+            return matchesName || matchesArr || matchesDep;
+        });
+
         splitLayout.setHeightFull();
         splitLayout.getElement().getStyle().set("height", "100%");
         getElement().getStyle().set("height", "100%");
+
         grid.setSizeFull();
-        // Configure Grid
         grid.addColumn("trainName").setAutoWidth(true).setHeader("train");
         grid.addColumn("depStation").setAutoWidth(true).setHeader("departure station");
-        grid.addColumn("depTime").setAutoWidth(true).setHeader("departure time");
+        grid.addColumn(station -> formatTime(station.getDepTime())).setAutoWidth(true).setHeader("departure time");
         grid.addColumn("arrStation").setAutoWidth(true).setHeader("arrival station");
-        grid.addColumn("arrTime").setAutoWidth(true).setHeader("arrival time");
+        grid.addColumn(station -> formatTime(station.getArrTime())).setAutoWidth(true).setHeader("arrival time");
         grid.addColumn("delay").setAutoWidth(true).setHeader("delay");
         grid.setHeightFull();
         grid.setItems(query -> trainService.list(

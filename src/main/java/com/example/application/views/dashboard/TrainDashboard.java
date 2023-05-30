@@ -100,9 +100,7 @@ public class TrainDashboard extends AppLayout {
         addToNavbar(header);
 
     }
-
     private VerticalLayout createDialogLayout() {
-
         code = new TextField("please enter the ticket code:");
         VerticalLayout dialogLayout = new VerticalLayout(code);
 
@@ -124,18 +122,15 @@ public class TrainDashboard extends AppLayout {
             s.setItems(rating);
             dialogLayout.add(s);
         }
-
         dialogLayout.setPadding(false);
         dialogLayout.setSpacing(false);
         dialogLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
         dialogLayout.getStyle().set("width", "18rem").set("max-width", "100%");
-
         return dialogLayout;
     }
 
     private void createDrawer() {
         User user = VaadinSession.getCurrent().getAttribute(User.class);
-
         List<AuthService.AuthorizedRoute> routes = security.getAuthorizedRoutes(user.getRole());
         RouterLink[] list = new RouterLink[routes.size()];
         int index = 0;

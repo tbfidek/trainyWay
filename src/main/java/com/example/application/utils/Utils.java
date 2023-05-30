@@ -1,5 +1,6 @@
 package com.example.application.utils;
 
+import java.text.Normalizer;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -14,6 +15,7 @@ public class Utils {
             formattedTime = dateTime.format(DateTimeFormatter.ofPattern("HH:mm", new Locale("ro_RO")));
 
         }
+        else return "00:00";
         return formattedTime;
     }
     public static String setBreak(Integer stationaryTime) {
@@ -28,5 +30,13 @@ public class Utils {
             }
         }
         return breakTime;
+    }
+    public static String replaceSearch(String search){
+
+        String convertedString =
+                Normalizer
+                        .normalize(search, Normalizer.Form.NFD)
+                        .replaceAll("[^\\p{ASCII}]", "");
+        return convertedString.toLowerCase();
     }
 }
