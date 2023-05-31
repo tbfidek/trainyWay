@@ -83,14 +83,9 @@ public class TicketView extends Div {
     String review_code;
 
     static {
-
         for(int i = 1; i <= 60; ++i ){
-            if(i % 2 == 0)
-                seatNumbers.add(String.valueOf(i) + "\t[\uD83D\uDDD4]");
-            else
                 seatNumbers.add(String.valueOf(i));
         }
-
     }
 
     public TicketView(TrainService trainService, EmailService emailService, AuthService authService, TicketService ticketService, StationService stationService, TicketRepository ticketRepository) {

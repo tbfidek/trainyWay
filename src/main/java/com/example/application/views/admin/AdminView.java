@@ -1,6 +1,7 @@
 package com.example.application.views.admin;
 import com.example.application.data.entity.Train;
 import com.example.application.data.service.TrainService;
+import com.example.application.utils.Broadcaster;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -29,9 +30,9 @@ import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Optional;
 
@@ -55,7 +56,7 @@ public class AdminView extends Div {
     private final TrainService trainService;
 
 
-    public AdminView(TrainService trainService) {
+    public AdminView(TrainService trainService) throws IOException {
 
         this.trainService = trainService;
         addClassNames("admin-view");
@@ -176,10 +177,12 @@ public class AdminView extends Div {
                     //this.train.setId(trainService.getMaxTrainId() + 1);
                 }
                 binder.writeBean(this.train);
+                Broadcaster.broadcast(this.train.getTrainName() + " was delayed by " + this.train.getDelay() + " minutes" );
                 trainService.update(this.train);
                 clearForm();
                 refreshGrid();
                 Notification.show("Data updated");
+
                 UI.getCurrent().navigate(AdminView.class);
             } catch (ObjectOptimisticLockingFailureException exception) {
                 Notification n = Notification.show(

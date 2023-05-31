@@ -4,35 +4,53 @@ import com.example.application.data.entity.Train;
 import com.example.application.data.service.ReviewService;
 import com.example.application.data.service.TrainRepository;
 import com.example.application.data.service.TrainService;
+import com.example.application.utils.Broadcaster;
+import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.shared.Registration;
+import jakarta.mail.MessagingException;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.text.Normalizer;
 import java.util.List;
-
 import static com.example.application.utils.Utils.formatTime;
 import static com.example.application.utils.Utils.replaceSearch;
-
-@PageTitle("trainyWay | home")
+@PageTitle("Home")
 @Uses(Icon.class)
 public class HomeView extends VerticalLayout {
-    private final String SAMPLEPERSON_EDIT_ROUTE_TEMPLATE = "train/%s";
+    private final String TRAIN_EDIT_ROUTE_TEMPLATE = "train/%s";
     private final Grid<Train> grid = new Grid<>(Train.class, false);
     private final TextField searchField = new TextField();
     private Train train;
     private final TrainService trainService;
     private final TrainRepository trainRepository;
     private final ReviewService reviewService;
+    Registration broadcasterRegistration;
 
     public HomeView(TrainService trainService, TrainRepository trainRepository, ReviewService reviewService) {
+
+
+
         this.trainService = trainService;
         this.trainRepository = trainRepository;
         this.reviewService = reviewService;
@@ -50,6 +68,7 @@ public class HomeView extends VerticalLayout {
 
 
         List<Train> trainList = trainService.getAll();
+
         GridListDataView<Train> gridView = grid.setItems(trainList);
 
         searchField.setWidth("50%");
@@ -60,20 +79,12 @@ public class HomeView extends VerticalLayout {
 
         gridView.addFilter(train -> {
             String searchTerm = searchField.getValue().trim();
-            if (searchTerm.isEmpty()) {
+            if (searchTerm.isEmpty())
                 return true;
-            }
             boolean matchesName = replaceSearch(train.getTrainName()).contains(searchTerm.toLowerCase());
             boolean matchesArr = replaceSearch(train.getArrStation()).contains(searchTerm.toLowerCase());
             boolean matchesDep = replaceSearch(train.getDepStation()).contains(searchTerm.toLowerCase());
-            if(!(matchesName || matchesArr || matchesDep)){
-                searchField.setHelperText("sorry, the search didn't come up with any results");
-            }
-            else {
-                searchField.setHelperText("");
-            }
             return matchesName || matchesArr || matchesDep;
-
         });
 
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
@@ -81,12 +92,31 @@ public class HomeView extends VerticalLayout {
         // train page redirect
         grid.asSingleSelect().addValueChangeListener(event -> {
             if (event.getValue() != null) {
-                UI.getCurrent().navigate(String.format(SAMPLEPERSON_EDIT_ROUTE_TEMPLATE, event.getValue().getId()));
+                UI.getCurrent().navigate(String.format(TRAIN_EDIT_ROUTE_TEMPLATE, event.getValue().getId()));
             } else {
                 UI.getCurrent().navigate(HomeView.class);
             }
         });
 
+    }
+
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        UI ui = attachEvent.getUI();
+        broadcasterRegistration = Broadcaster.register(newMessage -> {
+            ui.access(() ->{
+                Notification n = Notification.show(newMessage);
+                n.setDuration(5000);
+                n.setPosition(Notification.Position.BOTTOM_START);
+                n.addThemeVariants(NotificationVariant.LUMO_CONTRAST);
+            });
+        });
+    }
+
+    @Override
+    protected void onDetach(DetachEvent detachEvent) {
+        broadcasterRegistration.remove();
+        broadcasterRegistration = null;
     }
 
 }

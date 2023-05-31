@@ -58,7 +58,7 @@ public class TrainDashboard extends AppLayout {
                         float reviewScore = (Float.valueOf(select.getValue()) + Float.valueOf(select1.getValue()) + Float.valueOf(select2.getValue())) / 3;
                         reviewRepository.save(new Review(currentUser.getId(), Long.valueOf(selectedTrainId), reviewScore));
                         review.close();
-                        Notification n = Notification.show("Thanks for the review! If it's not positive fucking kill yourself!");
+                        Notification n = Notification.show("Thanks for the review!");
                         n.setDuration(4000);
                         n.setPosition(Notification.Position.MIDDLE);
                         n.addThemeVariants(NotificationVariant.LUMO_CONTRAST);
