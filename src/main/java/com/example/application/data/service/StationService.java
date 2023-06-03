@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -54,7 +55,13 @@ public class StationService {
 
     public List<Station>  getAfterStations(Long id, String stationName) { return repository.getAfterStations(id, stationName); }
     public List<String> stationList(){ return repository.stationList(); }
-    public List<String> arrivalsList(String stationName){ return repository.arrivalsList(stationName); }
+    public List<List<String>> arrivalsList(String stationName){
+        List<List<String>> arrivals = new ArrayList<>();
+        for (String s : repository.arrivalsList(stationName).split("\\),")){
+            arrivals.add(List.of(s.replace("(", "").replace(")", "").split(",")));
+        }
+        return arrivals;
+    }
     public List<String> departuresList(String stationName){ return repository.departuresList(stationName); }
-
+//(),(),(),()
 }

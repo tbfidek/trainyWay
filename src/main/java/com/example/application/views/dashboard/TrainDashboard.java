@@ -1,10 +1,9 @@
 package com.example.application.views.dashboard;
 
 import com.example.application.data.entity.Review;
+import com.example.application.data.entity.Train;
 import com.example.application.data.entity.User;
-import com.example.application.data.service.AuthService;
-import com.example.application.data.service.ReviewRepository;
-import com.example.application.data.service.ReviewService;
+import com.example.application.data.service.*;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
@@ -29,14 +28,16 @@ public class TrainDashboard extends AppLayout {
     private final AuthService security;
     private final ReviewService reviewService;
     private final ReviewRepository reviewRepository;
+    private final TrainService trainService;
     private TextField code;
     private Select<String> select, select1, select2;
     private String selectedTrainId;
 
-    public TrainDashboard(AuthService security, ReviewService reviewService, ReviewRepository reviewRepository) {
+    public TrainDashboard(AuthService security, ReviewService reviewService, ReviewRepository reviewRepository, TrainService trainService) {
         this.security = security;
         this.reviewService = reviewService;
         this.reviewRepository = reviewRepository;
+        this.trainService = trainService;
         createHeader();
         createDrawer();
     }
@@ -58,6 +59,10 @@ public class TrainDashboard extends AppLayout {
                         float reviewScore = (Float.valueOf(select.getValue()) + Float.valueOf(select1.getValue()) + Float.valueOf(select2.getValue())) / 3;
                         reviewRepository.save(new Review(currentUser.getId(), Long.valueOf(selectedTrainId), reviewScore));
                         review.close();
+                        Train train = trainService.get(Long.valueOf(selectedTrainId)).get();
+                        float rating = Float.valueOf(reviewService.ratingScore(Long.valueOf(selectedTrainId)));
+                        train.setRating(rating);
+                        trainService.update(train);
                         Notification n = Notification.show("Thanks for the review!");
                         n.setDuration(4000);
                         n.setPosition(Notification.Position.MIDDLE);

@@ -20,9 +20,13 @@ import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.data.renderer.LitRenderer;
+import com.vaadin.flow.data.renderer.Renderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.shared.Registration;
+import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import jakarta.mail.MessagingException;
 
 import java.io.BufferedReader;
@@ -64,28 +68,28 @@ public class HomeView extends VerticalLayout {
         grid.addColumn("arrStation").setAutoWidth(true).setHeader("arrival station");
         grid.addColumn(station -> formatTime(station.getArrTime())).setAutoWidth(true).setHeader("arrival time");
         grid.addColumn("delay").setAutoWidth(true).setHeader("delay");
-        grid.addColumn(p -> reviewService.ratingScore(p.getId())).setAutoWidth(true).setHeader("rating");
+        grid.addColumn(p -> p.getRating()).setAutoWidth(true).setHeader("rating");
 
 
         List<Train> trainList = trainService.getAll();
-
-        GridListDataView<Train> gridView = grid.setItems(trainList);
+        grid.setPageSize(20);
+        grid.setItems(VaadinSpringDataHelpers.fromPagingRepository(trainRepository));
 
         searchField.setWidth("50%");
         searchField.setPlaceholder("Search");
         searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
         searchField.setValueChangeMode(ValueChangeMode.EAGER);
-        searchField.addValueChangeListener(e -> gridView.refreshAll());
+        //searchField.addValueChangeListener(e -> gridView.refreshAll());
 
-        gridView.addFilter(train -> {
-            String searchTerm = searchField.getValue().trim();
-            if (searchTerm.isEmpty())
-                return true;
-            boolean matchesName = replaceSearch(train.getTrainName()).contains(searchTerm.toLowerCase());
-            boolean matchesArr = replaceSearch(train.getArrStation()).contains(searchTerm.toLowerCase());
-            boolean matchesDep = replaceSearch(train.getDepStation()).contains(searchTerm.toLowerCase());
-            return matchesName || matchesArr || matchesDep;
-        });
+//        gridView.addFilter(train -> {
+//            String searchTerm = searchField.getValue().trim();
+//            if (searchTerm.isEmpty())
+//                return true;
+//            boolean matchesName = replaceSearch(train.getTrainName()).contains(searchTerm.toLowerCase());
+//            boolean matchesArr = replaceSearch(train.getArrStation()).contains(searchTerm.toLowerCase());
+//            boolean matchesDep = replaceSearch(train.getDepStation()).contains(searchTerm.toLowerCase());
+//            return matchesName || matchesArr || matchesDep;
+//        });
 
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
 

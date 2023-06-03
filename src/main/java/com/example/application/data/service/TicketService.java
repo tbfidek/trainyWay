@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,6 +25,8 @@ public class TicketService {
     public Optional<Ticket> get(Long id) {
         return repository.findById(id);
     }
+
+    public String[] getAvailableSeats(Long trainId, Date date, String wagonNumber) { return repository.getAvailableSeats(trainId, date, wagonNumber).split(","); }
 
     public float getTicketPrice(Long trainID, String start_station, String end_station, Integer wagon_type) { return repository.getTicketPrice(trainID, start_station, end_station, wagon_type);}
 

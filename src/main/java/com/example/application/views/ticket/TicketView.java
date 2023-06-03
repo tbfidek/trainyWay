@@ -83,7 +83,7 @@ public class TicketView extends Div {
     String review_code;
 
     static {
-        for(int i = 1; i <= 60; ++i ){
+        for(int i = 1; i <= 30; ++i ){
                 seatNumbers.add(String.valueOf(i));
         }
     }
@@ -233,7 +233,10 @@ public class TicketView extends Div {
         });
 
         wagonNumber.addValueChangeListener(e -> {
+            Train t = trainService.get(trainSelect.getValue().split(" ")[0]).get();
             seatNumber.setEnabled(true);
+            seatNumber.clear();
+            seatNumber.setItems(ticketService.getAvailableSeats(t.getId(),Date.valueOf(datePicker.getValue()), wagonNumber.getValue()));
         });
 
         seatNumber.addValueChangeListener(e -> {

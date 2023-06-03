@@ -22,7 +22,7 @@ public interface StationRepository extends
     @Query(value = "select * from \"search_from_to\"()", nativeQuery = true)
     List<String> stationList();
     @Query(value = "select * from \"get_arrivals_from\"(?1)", nativeQuery = true)
-    List<String> arrivalsList(String stationName);
+   String arrivalsList(String stationName);
     @Query(value = "select * from \"get_departures_from\"(?1)", nativeQuery = true)
     List<String> departuresList(String stationName);
 }
