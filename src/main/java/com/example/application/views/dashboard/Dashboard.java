@@ -22,7 +22,6 @@ public class Dashboard extends AppLayout {
         createHeader();
         createDrawer();
     }
-
     private void createHeader() {
         H1 logo = new H1("trainyWay");
         logo.addClassNames("text-l", "m-m");

@@ -83,14 +83,10 @@ public class AuthService {
             routes.add(new AuthorizedRoute("home", "Home", HomeView.class));
             routes.add(new AuthorizedRoute("ticket", "Ticket", TicketView.class));
             routes.add(new AuthorizedRoute("station", "Station", StationView.class));
-
-
         } else if (role.equals(Role.DISPATCHER)) {
             routes.add(new AuthorizedRoute("admin", "Admin", AdminView.class));
             routes.add(new AuthorizedRoute("home", "Home", HomeView.class));
-
         }
         return routes;
     }
-
 }

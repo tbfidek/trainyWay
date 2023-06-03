@@ -1,11 +1,9 @@
 package com.example.application.views.ticket;
 
-import com.example.application.data.entity.Station;
 import com.example.application.data.entity.Ticket;
 import com.example.application.data.entity.Train;
 import com.example.application.data.entity.User;
 import com.example.application.data.service.*;
-import com.example.application.utils.Utils;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -45,39 +43,24 @@ import java.sql.Date;
 
 @PageTitle("trainyWay | buy tickets")
 public class TicketView extends Div {
-
     private final TrainService trainService;
-
     private TicketRepository ticketRepository;
     private final TicketService ticketService;
     private final EmailService emailService;
     private final AuthService authService;
-
     private final StationService stationService;
-
     private String[] ticketDetails = new String[10];
-
     private static final List<String> trains = new LinkedList<>();
     private List<String> fromStations = new LinkedList<>();
     private List<String> toStations = new LinkedList<>();
-
     private static final List<String> seatNumbers = new LinkedList<>();
-
-
     private ComboBox<String> trainSelect;
-
     private ComboBox<String> routeDep;
-
     private ComboBox<String> routeArr;
-
     private ComboBox<String> wagonNumber;
-
     private ComboBox<String> seatNumber;
-
     private Paragraph ticketPrice;
-
     private DatePicker datePicker;
-
     TextField name;
     EmailField email;
     String review_code;
@@ -87,7 +70,6 @@ public class TicketView extends Div {
                 seatNumbers.add(String.valueOf(i));
         }
     }
-
     public TicketView(TrainService trainService, EmailService emailService, AuthService authService, TicketService ticketService, StationService stationService, TicketRepository ticketRepository) {
         this.trainService = trainService;
         this.emailService = emailService;

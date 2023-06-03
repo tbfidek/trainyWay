@@ -53,17 +53,15 @@ public class TrainView extends Div implements BeforeEnterObserver {
 
             Grid<Station> grid = new Grid<>(Station.class, false);
             grid.setSizeFull();
-            grid.addColumn(station -> formatTime(station.getDepTime() - station.getStationaryTime())).setAutoWidth(true).setHeader("arrival time");
+            grid.addColumn(station -> formatTime(station.getArrTime(), station.getDepTime())).setAutoWidth(true).setHeader("arrival time");
             grid.addColumn("stationName").setAutoWidth(true).setHeader("station");
             grid.addColumn(station -> setBreak(station.getStationaryTime())).setAutoWidth(true).setHeader("break");
-            grid.addColumn(station -> formatTime(station.getDepTime())).setAutoWidth(true).setHeader("departure time");
-            //grid.addColumn(p -> updateTrains(p)).setAutoWidth(true).setHeader("delay");
+            grid.addColumn(station -> formatTime(station.getDepTime(), station.getDepTime(), station.getArrTime())).setAutoWidth(true).setHeader("departure time");
             grid.addColumn(createToggleDetailsRenderer(grid));
 
             grid.setDetailsVisibleOnClick(false);
             grid.setItemDetailsRenderer(createPersonDetailsRenderer());
             grid.setHeightFull();
-            //grid.setClassNameGenerator(station -> isStationDelayed(station) ? "delayed-station" : null);
 
             addAttachListener(attachEvent -> {
                 List<Station> stations = stationService.getStationsByTrainId(trainID);

@@ -1,36 +1,25 @@
 package com.example.application.views.authentication;
 
-import com.example.application.data.entity.Station;
 import com.example.application.data.entity.User;
-import com.example.application.data.service.StationService;
 import com.example.application.data.service.UserRepository;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.PasswordField;
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.aspectj.weaver.ast.Not;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 @Route("resetpassword/:resetCode")
 public class ResetPasswordView extends Div implements BeforeEnterObserver {
-
     private String resetCode;
     private PasswordField passwordField;
     private PasswordField passwordConfirmField;

@@ -2,11 +2,13 @@
     display: flex;
     justify-content: center;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     padding: 20%;
-    /*background-color: #7f3f49;*/
+    background-color: #83c6de;
     color: white;
+
 }
+
 :host {
     display: block;
     padding: var(--lumo-space-m) var(--lumo-space-l);

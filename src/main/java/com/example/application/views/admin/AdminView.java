@@ -31,8 +31,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
 import java.io.*;
-import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,17 +42,12 @@ import static com.example.application.utils.Utils.replaceSearch;
 public class AdminView extends Div {
     private final Grid<Train> grid = new Grid<>(Train.class, false);
     private TextField trainName, depStation, depTime, arrStation, arrTime, delay;
-
     private final Button cancel = new Button("Cancel");
     private final Button save = new Button("Save");
     private final TextField searchField = new TextField();
-
     private final BeanValidationBinder<Train> binder;
-
     private Train train;
-
     private final TrainService trainService;
-
 
     public AdminView(TrainService trainService) throws IOException {
 

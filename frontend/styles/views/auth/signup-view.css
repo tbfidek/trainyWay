@@ -3,7 +3,9 @@
     justify-content: center;
     flex-direction: column;
     align-items: center;
-    padding: 10%;
+    padding: 20%;
+    background-color: #83c6de;
+
 }
 
 :host {

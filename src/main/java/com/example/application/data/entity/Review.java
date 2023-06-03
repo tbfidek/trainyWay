@@ -4,7 +4,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
-import java.sql.Date;
 @Entity
 @Table(name = "reviews")
 public class Review extends AbstractEntity {

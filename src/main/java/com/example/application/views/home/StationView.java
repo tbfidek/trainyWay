@@ -1,6 +1,5 @@
 package com.example.application.views.home;
 
-import com.example.application.data.entity.Station;
 import com.example.application.data.service.*;
 import com.example.application.utils.Utils;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -13,22 +12,21 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.vaadin.flow.theme.lumo.LumoUtility.Display;
 import com.vaadin.flow.theme.lumo.LumoUtility.FlexDirection;
 import com.vaadin.flow.theme.lumo.LumoUtility.FlexWrap;
-import com.vaadin.flow.theme.lumo.LumoUtility.FontSize;
 import com.vaadin.flow.theme.lumo.LumoUtility.Gap;
 import com.vaadin.flow.theme.lumo.LumoUtility.Height;
 import com.vaadin.flow.theme.lumo.LumoUtility.Margin;
 
 import java.util.*;
 
+import static com.example.application.utils.Utils.replaceSearch;
+
 @PageTitle("trainyWay | station schedule")
 public class StationView extends Div {
     private final StationService stationService;
-    private List<String> stations = new LinkedList<>();
+    private final List<String> stations = new LinkedList<>();
     private ComboBox<String> stationPicker;
     private Grid<List<String>> arrivals;
     private Grid<List<String>> departures;
-
-    private List<List<String>> arriv = new ArrayList<>();;
 
     public StationView(StationService stationService) {
         this.stationService = stationService;
@@ -47,11 +45,16 @@ public class StationView extends Div {
         header.setHeight("100%");
         header.setWidth("100%");
         add(header);
-        arrivals.setItems(stationService.arrivalsList("Tecuci"));
+
 
         stationPicker.addValueChangeListener(e -> {
-
             arrivals.setItems(stationService.arrivalsList(stationPicker.getValue()));
+            departures.setItems(stationService.departuresList(stationPicker.getValue()));
+//            String sanitizedStation = replaceSearch(e.getValue());
+//
+//            sanitizedStation = sanitizedStation.toLowerCase();
+//            arrivals.setItems(stationService.arrivalsList(sanitizedStation));
+//            departures.setItems(stationService.departuresList(sanitizedStation));
         });
     }
 
@@ -63,20 +66,18 @@ public class StationView extends Div {
         stationPicker = new ComboBox<>("Station");
         stationPicker.setRequiredIndicatorVisible(true);
         stationPicker.setItems(stations);
-        stationPicker.setValue("Tecuci");
+        stationPicker.setValue("Bentu h.");
 
         stationPicker.setVisible(true);
         stationPicker.addClassNames(Margin.Bottom.SMALL);
         routeSelectionSection.add(stationPicker);
         updateStations();
-        VerticalLayout dialogLayout = new VerticalLayout(routeSelectionSection);
 
-        return dialogLayout;
+        return new VerticalLayout(routeSelectionSection);
     }
 
     private HorizontalLayout stationGrids() {
         HorizontalLayout grids = new HorizontalLayout();
-
         arrivals = new Grid<>();
         departures = new Grid<>();
         arrivals.setSizeFull();
@@ -85,11 +86,9 @@ public class StationView extends Div {
         arrivals.addColumn(list -> Utils.formatTime(Integer.valueOf(list.get(1).trim()))).setAutoWidth(true).setHeader("From");
         arrivals.addColumn(list -> list.get(2)).setAutoWidth(true).setHeader("Arrival");
         departures.addColumn(list -> list.get(0)).setAutoWidth(true).setHeader("Train");
-        departures.addColumn(list -> list.get(1)).setAutoWidth(true).setHeader("To");
+        departures.addColumn(list -> Utils.formatTime(Integer.valueOf(list.get(1).trim()))).setAutoWidth(true).setHeader("To");
         departures.addColumn(list -> list.get(2)).setAutoWidth(true).setHeader("Departure");
-        addAttachListener(attachEvent -> {
-            stationPicker.setValue("Tecuci");
-        });
+        addAttachListener(attachEvent -> stationPicker.setValue("Bentu h."));
 
         grids.setHeight("100%");
         grids.setWidth("100%");
@@ -101,9 +100,7 @@ public class StationView extends Div {
 
     private void updateStations() {
         stations.clear();
-        for (String st : stationService.stationList()) {
-            stations.add(st);
-        }
+        stations.addAll(stationService.stationList());
         stationPicker.setItems(stations);
     }
 }

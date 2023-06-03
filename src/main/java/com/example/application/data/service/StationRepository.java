@@ -1,7 +1,6 @@
 package com.example.application.data.service;
 
 import com.example.application.data.entity.Station;
-import com.example.application.data.entity.Train;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -22,8 +21,8 @@ public interface StationRepository extends
     @Query(value = "select * from \"search_from_to\"()", nativeQuery = true)
     List<String> stationList();
     @Query(value = "select * from \"get_arrivals_from\"(?1)", nativeQuery = true)
-   String arrivalsList(String stationName);
+    String arrivalsList(String stationName);
     @Query(value = "select * from \"get_departures_from\"(?1)", nativeQuery = true)
-    List<String> departuresList(String stationName);
+    String departuresList(String stationName);
 }
 
