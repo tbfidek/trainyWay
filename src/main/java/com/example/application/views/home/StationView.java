@@ -83,11 +83,11 @@ public class StationView extends Div {
         arrivals.setSizeFull();
         departures.setSizeFull();
         arrivals.addColumn(list -> list.get(0)).setAutoWidth(true).setHeader("Train");
-        arrivals.addColumn(list -> Utils.formatTime(Integer.valueOf(list.get(1).trim()))).setAutoWidth(true).setHeader("From");
-        arrivals.addColumn(list -> list.get(2)).setAutoWidth(true).setHeader("Arrival");
+        arrivals.addColumn(list -> list.get(2)).setAutoWidth(true).setHeader("From");
+        arrivals.addColumn(list -> Utils.formatTime(Integer.valueOf(list.get(1).trim()))).setAutoWidth(true).setHeader("Arrival");
         departures.addColumn(list -> list.get(0)).setAutoWidth(true).setHeader("Train");
-        departures.addColumn(list -> Utils.formatTime(Integer.valueOf(list.get(1).trim()))).setAutoWidth(true).setHeader("To");
-        departures.addColumn(list -> list.get(2)).setAutoWidth(true).setHeader("Departure");
+        departures.addColumn(list -> list.get(2)).setAutoWidth(true).setHeader("To");
+        departures.addColumn(list -> Utils.formatTime(Integer.valueOf(list.get(1).trim()))).setAutoWidth(true).setHeader("Departure");
         addAttachListener(attachEvent -> stationPicker.setValue("Bentu h."));
 
         grids.setHeight("100%");

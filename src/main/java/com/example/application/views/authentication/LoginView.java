@@ -1,5 +1,6 @@
 package com.example.application.views.authentication;
 
+import com.example.application.Exceptions.AuthException;
 import com.example.application.data.entity.User;
 import com.example.application.data.service.AuthService;
 import com.example.application.data.service.EmailService;
@@ -41,7 +42,7 @@ public class LoginView extends Div {
                 try {
                     authService.authenticate(username.getValue(), password.getValue());
                     UI.getCurrent().navigate("home");
-                } catch (AuthService.AuthException e) {
+                } catch (AuthException e) {
                     Notification n = Notification.show("wrong credentials");
                     n.setPosition(Notification.Position.MIDDLE);
                     n.addThemeVariants(NotificationVariant.LUMO_CONTRAST);
@@ -56,12 +57,12 @@ public class LoginView extends Div {
             Button forgot = new Button("forgot password?", buttonClickEvent -> setPopupLayout());
             forgot.addClassNames(LumoUtility.Margin.Top.MEDIUM, LumoUtility.Margin.Bottom.SMALL);
             add(
-                    new H1("Welcome"),
+                    new H1("TrainyWay"),
                     username,
                     password,
-                    forgot,
                     login,
-                    signup
+                    signup,
+                    forgot
             );
         }
     }

@@ -1,5 +1,9 @@
 package com.example.application.data.service;
 
+import com.example.application.Exceptions.AuthException;
+import com.example.application.Exceptions.BlankFieldsException;
+import com.example.application.Exceptions.PasswordNotEqualException;
+import com.example.application.Exceptions.UserAlreadyExistsException;
 import com.example.application.data.Role;
 import com.example.application.data.entity.User;
 import com.example.application.views.admin.AdminView;
@@ -20,21 +24,6 @@ public class AuthService {
     public record AuthorizedRoute(String route, String name, Class<? extends Component> view) {
 
     }
-
-    //separate class for exceptions;
-    public class AuthException extends Exception {
-    }
-
-    public class UserAlreadyExistsException extends Exception {
-    }
-
-    public class PasswordNotEqualException extends Exception {
-    }
-
-    public class BlankFieldsException extends Exception {
-
-    }
-
     private final UserRepository userRepository;
 
     public AuthService(UserRepository userRepository) {

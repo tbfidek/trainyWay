@@ -11,6 +11,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
@@ -23,6 +24,7 @@ import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import java.util.List;
 import static com.example.application.utils.Utils.formatTime;
+import static com.example.application.utils.Utils.replaceSearch;
 
 @PageTitle("Home")
 @Uses(Icon.class)
@@ -58,23 +60,24 @@ public class HomeView extends VerticalLayout {
 
         List<Train> trainList = trainService.getAll();
         grid.setPageSize(20);
-        grid.setItems(VaadinSpringDataHelpers.fromPagingRepository(trainRepository));
+        GridListDataView<Train> gridView = grid.setItems(trainList);
 
         searchField.setWidth("50%");
         searchField.setPlaceholder("Search");
         searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
         searchField.setValueChangeMode(ValueChangeMode.EAGER);
-        //searchField.addValueChangeListener(e -> gridView.refreshAll());
 
-//        gridView.addFilter(train -> {
-//            String searchTerm = searchField.getValue().trim();
-//            if (searchTerm.isEmpty())
-//                return true;
-//            boolean matchesName = replaceSearch(train.getTrainName()).contains(searchTerm.toLowerCase());
-//            boolean matchesArr = replaceSearch(train.getArrStation()).contains(searchTerm.toLowerCase());
-//            boolean matchesDep = replaceSearch(train.getDepStation()).contains(searchTerm.toLowerCase());
-//            return matchesName || matchesArr || matchesDep;
-//        });
+        searchField.addValueChangeListener(e -> gridView.refreshAll());
+
+        gridView.addFilter(train -> {
+            String searchTerm = searchField.getValue().trim();
+            if (searchTerm.isEmpty())
+                return true;
+            boolean matchesName = replaceSearch(train.getTrainName()).contains(searchTerm.toLowerCase());
+            boolean matchesArr = replaceSearch(train.getArrStation()).contains(searchTerm.toLowerCase());
+            boolean matchesDep = replaceSearch(train.getDepStation()).contains(searchTerm.toLowerCase());
+            return matchesName || matchesArr || matchesDep;
+        });
 
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
 

@@ -34,7 +34,7 @@ import static com.example.application.utils.Utils.*;
 
 @Route(value = "train/:trainID", layout = TrainDashboard.class)
 @CssImport(value = "../frontend/styles/views/train/train-view.css")
-@PageTitle("trainyWay | home view")
+@PageTitle("trainyWay | train view")
 public class TrainView extends Div implements BeforeEnterObserver {
 
     private String trainID;
@@ -60,7 +60,7 @@ public class TrainView extends Div implements BeforeEnterObserver {
             grid.addColumn(createToggleDetailsRenderer(grid));
 
             grid.setDetailsVisibleOnClick(false);
-            grid.setItemDetailsRenderer(createPersonDetailsRenderer());
+            grid.setItemDetailsRenderer(createTrainDetailsRenderer());
             grid.setHeightFull();
 
             addAttachListener(attachEvent -> {
@@ -87,25 +87,25 @@ public class TrainView extends Div implements BeforeEnterObserver {
                                 !grid.isDetailsVisible(person)));
     }
 
-    private static ComponentRenderer<PersonDetailsFormLayout, Station> createPersonDetailsRenderer() {
-        return new ComponentRenderer<>(PersonDetailsFormLayout::new,
-                PersonDetailsFormLayout::setPerson);
+    private static ComponentRenderer<TrainDetailsFormLayout, Station> createTrainDetailsRenderer() {
+        return new ComponentRenderer<>(TrainDetailsFormLayout::new,
+                TrainDetailsFormLayout::setPerson);
     }
-    private static class PersonDetailsFormLayout extends FormLayout {
-        private final TextField emailField = new TextField("delay");
+    private static class TrainDetailsFormLayout extends FormLayout {
+        private final TextField delayField = new TextField("delay");
 
 
-        public PersonDetailsFormLayout() {
-                emailField.setReadOnly(true);
-                add(emailField);
+        public TrainDetailsFormLayout() {
+            delayField.setReadOnly(true);
+                add(delayField);
 
             setResponsiveSteps(new ResponsiveStep("0", 3));
-            setColspan(emailField, 3);
+            setColspan(delayField, 3);
 
         }
 
         public void setPerson(Station person) {
-            emailField.setValue(updateTrains(person));
+            delayField.setValue(updateTrains(person));
 
         }
     }
@@ -141,10 +141,10 @@ public class TrainView extends Div implements BeforeEnterObserver {
                     Duration timeDifference = Duration.between(currentTime, trainArrivalTime);
                     if (timeDifference.getSeconds() / 60 > 0) {
                         if (Math.abs(timeDifference.getSeconds() / 60) > 1000) {
-                            System.out.println("A TRECUT!");
+                            //System.out.println("A TRECUT!");
                             return "not delayed";
                         } else {
-                            System.out.println("NU A TRECUT!");
+                            //System.out.println("NU A TRECUT!");
                             return tren.get().getDelay().toString() + " minutes";
                         }
                     } else {

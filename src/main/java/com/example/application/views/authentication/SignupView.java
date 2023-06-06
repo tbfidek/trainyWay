@@ -1,5 +1,8 @@
 package com.example.application.views.authentication;
 
+import com.example.application.Exceptions.BlankFieldsException;
+import com.example.application.Exceptions.PasswordNotEqualException;
+import com.example.application.Exceptions.UserAlreadyExistsException;
 import com.example.application.data.entity.User;
 import com.example.application.data.service.AuthService;
 import com.vaadin.flow.component.UI;
@@ -38,11 +41,11 @@ public class SignupView extends Div {
                         try {
                             authService.register(username.getValue(), email.getValue(), password.getValue(), confirmPassword.getValue());
                             UI.getCurrent().navigate(" ");
-                        } catch (AuthService.PasswordNotEqualException e) {
+                        } catch (PasswordNotEqualException e) {
                             Notification.show("Your passwords are not equal!");
-                        } catch (AuthService.UserAlreadyExistsException e) {
+                        } catch (UserAlreadyExistsException e) {
                             Notification.show("Entered email is already in use!");
-                        } catch (AuthService.BlankFieldsException e) {
+                        } catch (BlankFieldsException e) {
                             Notification.show("All fields must be completed!");
 
                         }
